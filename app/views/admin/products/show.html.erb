@@ -1,0 +1,49 @@
+<h1 class="mb-4"><%= @product.name %></h1>
+
+<div class="mb-3">
+  <%= link_to "Edit Product", edit_admin_product_path(@product), class: "btn btn-warning" %>
+  <%= link_to "Add SKU", new_admin_product_sku_path(@product), class: "btn btn-success" %>
+  <%= link_to "Back to List", admin_products_path, class: "btn btn-secondary" %>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Product Information</h5>
+    <p><strong>Description:</strong> <%= @product.description %></p>
+    <p><strong>Created:</strong> <%= @product.created_at.strftime('%Y-%m-%d') %></p>
+  </div>
+</div>
+
+<h3 class="mb-3">SKUs</h3>
+<% if @skus.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>SKU Code</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @skus.each do |sku| %>
+          <tr>
+            <td><%= sku.name %></td>
+            <td><code><%= sku.sku_code %></code></td>
+            <td><%= sku.created_at.strftime('%Y-%m-%d') %></td>
+            <td>
+              <%= link_to "Edit", edit_admin_product_sku_path(@product, sku), class: "btn btn-sm btn-warning" %>
+              <%= button_to "Delete", admin_product_sku_path(@product, sku), method: :delete, 
+                  data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="alert alert-warning">
+    No SKUs for this product yet. <%= link_to "Add a SKU", new_admin_product_sku_path(@product) %>
+  </div>
+<% end %>

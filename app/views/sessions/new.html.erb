@@ -1,0 +1,32 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card shadow">
+      <div class="card-body p-5">
+        <h2 class="text-center mb-4">Login</h2>
+        
+        <%= form_with url: login_path, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, class: "form-control", placeholder: "Enter your email", required: true, autofocus: true %>
+          </div>
+
+          <div class="mb-4">
+            <%= f.label :password, class: "form-label" %>
+            <%= f.password_field :password, class: "form-control", placeholder: "Enter your password", required: true %>
+          </div>
+
+          <%= f.submit "Login", class: "btn btn-primary w-100" %>
+        <% end %>
+
+        <hr class="my-4">
+        
+        <div class="text-muted small">
+          <p class="mb-1"><strong>Demo Credentials:</strong></p>
+          <p class="mb-1">Admin: admin@unionswiss.com / admin123</p>
+          <p class="mb-1">Distributor 1: orders@capebeauty.co.za / cape123</p>
+          <p class="mb-0">Distributor 2: purchasing@wellnessza.com / wellness123</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

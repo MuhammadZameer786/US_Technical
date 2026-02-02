@@ -1,0 +1,81 @@
+<h1 class="mb-4">Welcome, <%= @distributor.name %></h1>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Available Products</h5>
+        <p class="display-4"><%= @available_skus.count %></p>
+        <%= link_to "Place New Order", new_distributors_order_path, class: "btn btn-success" %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">My Orders</h5>
+        <p class="display-4"><%= @recent_orders.count %></p>
+        <%= link_to "View All Orders", distributors_orders_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 class="mb-3">Available Products for Your Account</h3>
+<% if @available_skus.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>SKU</th>
+          <th>SKU Code</th>
+          <th>Your Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @available_skus.each do |dist_sku| %>
+          <tr>
+            <td><%= dist_sku.sku.product.name %></td>
+            <td><%= dist_sku.sku.name %></td>
+            <td><code><%= dist_sku.sku.sku_code %></code></td>
+            <td class="fw-bold">R <%= number_with_precision(dist_sku.price, precision: 2) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<h3 class="mb-3 mt-5">Recent Orders</h3>
+<% if @recent_orders.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Delivery Date</th>
+          <th>Total Amount</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_orders.each do |order| %>
+          <tr>
+            <td><%= order.order_number %></td>
+            <td><%= order.required_delivery_date.strftime('%Y-%m-%d') %></td>
+            <td class="fw-bold">R <%= number_with_precision(order.total_amount, precision: 2) %></td>
+            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+            <td>
+              <%= link_to "View", distributors_orders_path(order), class: "btn btn-sm btn-info" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted">No orders yet. <%= link_to "Create your first order", new_distributors_order_path %></p>
+<% end %>

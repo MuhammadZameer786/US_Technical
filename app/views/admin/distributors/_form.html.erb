@@ -1,0 +1,28 @@
+<h1 class="mb-4"><%= @distributor.new_record? ? 'New Distributor' : 'Edit Distributor' %></h1>
+
+<%= form_with model: @distributor, url: @distributor.new_record? ? admin_distributors_path : admin_distributor_path(@distributor), local: true do |f| %>
+  <% if @distributor.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@distributor.errors.count, "error") %> prohibited this distributor from being saved:</h4>
+      <ul>
+        <% @distributor.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <%= f.label :name, class: "form-label" %>
+        <%= f.text_field :name, class: "form-control", placeholder: "Enter distributor name", required: true %>
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <%= link_to "Cancel", admin_distributors_path, class: "btn btn-secondary" %>
+        <%= f.submit @distributor.new_record? ? "Create Distributor" : "Update Distributor", class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

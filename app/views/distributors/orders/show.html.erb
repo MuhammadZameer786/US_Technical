@@ -1,0 +1,78 @@
+<h1 class="mb-4">Order Details</h1>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Order Information</h5>
+        <table class="table table-sm">
+          <tr>
+            <th>Order Number:</th>
+            <td><strong><%= @order.order_number %></strong></td>
+          </tr>
+          <tr>
+            <th>Required Delivery Date:</th>
+            <td><%= @order.required_delivery_date.strftime('%B %d, %Y') %></td>
+          </tr>
+          <tr>
+            <th>Order Date:</th>
+            <td><%= @order.created_at.strftime('%B %d, %Y at %I:%M %p') %></td>
+          </tr>
+          <tr>
+            <th>Distributor:</th>
+            <td><%= @order.distributor.name %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Order Summary</h5>
+        <p class="display-6 text-success">R <%= number_with_precision(@order.total_amount, precision: 2) %></p>
+        <p class="text-muted"><%= pluralize(@order_items.count, 'item') %> ordered</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 class="mb-3">Order Items</h3>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>SKU</th>
+        <th>SKU Code</th>
+        <th class="text-end">Unit Price</th>
+        <th class="text-center">Quantity</th>
+        <th class="text-end">Total Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @order_items.each do |item| %>
+        <tr>
+          <td><%= item.sku.product.name %></td>
+          <td><%= item.sku.name %></td>
+          <td><code><%= item.sku.sku_code %></code></td>
+          <td class="text-end">R <%= number_with_precision(item.unit_price, precision: 2) %></td>
+          <td class="text-center"><strong><%= item.quantity %></strong></td>
+          <td class="text-end fw-bold">R <%= number_with_precision(item.total_price, precision: 2) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr class="table-primary">
+        <th colspan="5" class="text-end">Grand Total:</th>
+        <th class="text-end fs-5">R <%= number_with_precision(@order.total_amount, precision: 2) %></th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="mt-4">
+  <%= link_to "Back to Orders", distributors_orders_path, class: "btn btn-secondary" %>
+  <%= link_to "Place Another Order", new_distributors_order_path, class: "btn btn-success" %>
+</div>

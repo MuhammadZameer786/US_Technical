@@ -1,0 +1,41 @@
+<h1 class="mb-4">My Orders</h1>
+
+<div class="mb-3">
+  <%= link_to "Place New Order", new_distributors_order_path, class: "btn btn-success" %>
+</div>
+
+<% if @orders.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Required Delivery Date</th>
+          <th>Items</th>
+          <th class="text-end">Total Amount</th>
+          <th>Order Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <tr>
+            <td><strong><%= order.order_number %></strong></td>
+            <td><%= order.required_delivery_date.strftime('%Y-%m-%d') %></td>
+            <td><%= pluralize(order.order_items.count, 'item') %></td>
+            <td class="text-end fw-bold">R <%= number_with_precision(order.total_amount, precision: 2) %></td>
+            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+            <td>
+              <%= link_to "View", distributors_orders_path(order), class: "btn btn-sm btn-info" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="alert alert-info">
+    <h4>No orders yet</h4>
+    <p>You haven't placed any orders yet. <%= link_to "Place your first order", new_distributors_order_path %> to get started.</p>
+  </div>
+<% end %>

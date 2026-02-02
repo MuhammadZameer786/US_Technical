@@ -1,0 +1,64 @@
+<h1 class="mb-4">Admin Dashboard</h1>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">Distributors</h5>
+        <p class="display-4"><%= @distributors_count %></p>
+        <%= link_to "Manage", admin_distributors_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">Products</h5>
+        <p class="display-4"><%= @products_count %></p>
+        <%= link_to "Manage", admin_products_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">Total Orders</h5>
+        <p class="display-4"><%= @orders_count %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 class="mb-3">Recent Orders</h3>
+<% if @recent_orders.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Distributor</th>
+          <th>User</th>
+          <th>Delivery Date</th>
+          <th>Total Amount</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_orders.each do |order| %>
+          <tr>
+            <td><%= order.order_number %></td>
+            <td><%= order.distributor.name %></td>
+            <td><%= order.user.email %></td>
+            <td><%= order.required_delivery_date.strftime('%Y-%m-%d') %></td>
+            <td>R <%= number_with_precision(order.total_amount, precision: 2) %></td>
+            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted">No orders yet.</p>
+<% end %>

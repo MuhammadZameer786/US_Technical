@@ -1,0 +1,37 @@
+<h1 class="mb-4">Products</h1>
+
+<div class="mb-3">
+  <%= link_to "Add New Product", new_admin_product_path, class: "btn btn-primary" %>
+</div>
+
+<% if @products.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>SKUs</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td><strong><%= product.name %></strong></td>
+            <td><%= truncate(product.description, length: 100) %></td>
+            <td><%= pluralize(product.skus.count, 'SKU') %></td>
+            <td>
+              <%= link_to "View", admin_product_path(product), class: "btn btn-sm btn-info" %>
+              <%= link_to "Edit", edit_admin_product_path(product), class: "btn btn-sm btn-warning" %>
+              <%= button_to "Delete", admin_product_path(product), method: :delete, 
+                  data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted">No products yet.</p>
+<% end %>
