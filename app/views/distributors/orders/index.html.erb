@@ -26,8 +26,7 @@
             <td class="text-end fw-bold">R <%= number_with_precision(order.total_amount, precision: 2) %></td>
             <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
             <td>
-              <%= link_to "View", distributors_orders_path(order), class: "btn btn-sm btn-info" %>
-            </td>
+<%= link_to "View", distributors_order_path(order), class: "btn btn-sm btn-info" %>            </td>
           </tr>
         <% end %>
       </tbody>
