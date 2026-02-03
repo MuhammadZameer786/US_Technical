@@ -22,7 +22,10 @@
         <tr>
           <th>Name</th>
           <th>SKU Code</th>
-          <th>Created</th>
+          <th>SKU Currency</th>
+          <th>SKU Distributors</th>
+          <%# <th>Created</th> %>
+          <th>Price</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -31,9 +34,19 @@
           <tr>
             <td><%= sku.name %></td>
             <td><code><%= sku.sku_code %></code></td>
-            <td><%= sku.('%Y-%m-%d') %></td>
+            <td><code><%= sku.currency %></code></td>
 
-            <td><%= sku.created_at.strftime('%Y-%m-%d') %></td>
+<td>
+      <% if sku.distributor %>
+        <%= sku.distributor.name %>
+      <% else %>
+        <span class="text-muted">Not assigned</span>
+      <% end %>
+    </td>
+        <td><%= sku.price
+        # created_at.strftime('%Y-%m-%d %H:%M')
+         %></td>
+
             <td>
               <%= link_to "Edit", edit_admin_product_sku_path(@product, sku), class: "btn btn-sm btn-warning" %>
               <%= button_to "Delete", admin_product_sku_path(@product, sku), method: :delete, 

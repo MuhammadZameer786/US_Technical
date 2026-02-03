@@ -10,22 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_02_120007) do
-  create_table "distributor_skus", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "distributor_id", null: false
-    t.decimal "price", precision: 10, scale: 2, null: false
-    t.integer "sku_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["distributor_id", "sku_id"], name: "index_distributor_skus_on_distributor_id_and_sku_id", unique: true
-    t.index ["distributor_id"], name: "index_distributor_skus_on_distributor_id"
-    t.index ["sku_id"], name: "index_distributor_skus_on_sku_id"
-  end
-
+ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
   create_table "distributors", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "currency", default: "ZAR", null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["currency"], name: "index_distributors_on_currency"
   end
 
   create_table "order_items", force: :cascade do |t|
@@ -62,10 +53,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_02_120007) do
 
   create_table "skus", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "currency"
+    t.integer "distributor_id", null: false
     t.string "name", null: false
+    t.decimal "price"
     t.integer "product_id", null: false
     t.string "sku_code", null: false
     t.datetime "updated_at", null: false
+    t.index ["distributor_id"], name: "index_skus_on_distributor_id"
     t.index ["product_id"], name: "index_skus_on_product_id"
     t.index ["sku_code"], name: "index_skus_on_sku_code", unique: true
   end
@@ -81,12 +76,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_02_120007) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "distributor_skus", "distributors"
-  add_foreign_key "distributor_skus", "skus"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "skus"
   add_foreign_key "orders", "distributors"
   add_foreign_key "orders", "users"
+  add_foreign_key "skus", "distributors"
   add_foreign_key "skus", "products"
   add_foreign_key "users", "distributors"
 end

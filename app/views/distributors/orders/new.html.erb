@@ -31,7 +31,7 @@
               <th>SKU</th>
               <th>SKU Code</th>
               <th>Unit Price</th>
-              <th width="150">Quantity</th>
+              <th width="150">Quantity(Pallets) 1 = 4800 units</th>
               <th>Total</th>
             </tr>
           </thead>
@@ -88,9 +88,10 @@
         const quantityInput = row.querySelector('.quantity-input');
         const quantity = parseInt(quantityInput.value) || 0;
         const price = parseFloat(row.dataset.price);
-        const total = quantity * price;
+        const unitsPerpallet = 4800 
+        const total = unitsPerpallet * quantity * price;
 
-        row.querySelector('.item-total').textContent = 'R ' + total.toFixed(2);
+        row.querySelector('.item-total').textContent = total.toLocaleString('en-ZA',{style: 'currency', currency:'USD'});
         
         if (quantity > 0) {
           hasItems = true;
@@ -98,7 +99,7 @@
         }
       });
 
-      grandTotalElement.textContent = 'R ' + grandTotal.toFixed(2);
+      grandTotalElement.textContent = grandTotal.toLocaleString('en-ZA',{style: 'currency', currency:'ZAR'});
       
       // Disable submit button if no items
       submitButton.disabled = !hasItems;

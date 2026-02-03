@@ -1,7 +1,7 @@
 module Distributors
   class OrdersController < ApplicationController
     before_action :require_distributor
-    before_action :set_order, only: [:show, :review]
+    before_action :set_order, only: [ :show, :review ]
 
     def index
       @orders = current_user.distributor.orders.includes(:order_items).order(created_at: :desc)
@@ -13,8 +13,8 @@ module Distributors
 
     def new
       @distributor = current_user.distributor
-      @available_skus = @distributor.distributor_skus.includes(sku: :product)
-      
+      @available_skus = @distributor.skus.includes(sku: :product)
+
       if @available_skus.empty?
         flash[:alert] = "No products are currently available. Please contact the administrator."
         redirect_to distributors_dashboard_path
@@ -30,7 +30,7 @@ module Distributors
       begin
         ActiveRecord::Base.transaction do
           @order.save!
-          
+
           # Create order items from cart data
           cart_items = params[:order][:items] || {}
           cart_items.each do |sku_id, item_data|
@@ -38,13 +38,13 @@ module Distributors
             next if quantity <= 0
 
             sku = Sku.find(sku_id)
-            distributor_sku = @distributor.distributor_skus.find_by!(sku: sku)
-            
+            distributor = @distributor.skus.find_by!(sku: sku)
+
             @order.order_items.create!(
               sku: sku,
               quantity: quantity,
-              unit_price: distributor_sku.price,
-              total_price: quantity * distributor_sku.price
+              unit_price: distributor.price,
+              total_price: quantity * distributor.price
             )
           end
 
@@ -59,11 +59,11 @@ module Distributors
         flash[:notice] = "Order placed successfully!"
         redirect_to distributors_order_path(@order)
       rescue ActiveRecord::RecordInvalid => e
-        @available_skus = @distributor.distributor_skus.includes(sku: :product)
+        @available_skus = @distributor.skus.includes(sku: :product)
         flash.now[:alert] = "Failed to create order. Please check the form and try again."
         render :new, status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound
-        @available_skus = @distributor.distributor_skus.includes(sku: :product)
+        @available_skus = @distributor.skus.includes(sku: :product)
         flash.now[:alert] = "Invalid SKU selected. You can only order products assigned to your account."
         render :new, status: :unprocessable_entity
       end

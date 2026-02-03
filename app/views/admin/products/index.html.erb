@@ -21,6 +21,7 @@
             <td><strong><%= product.name %></strong></td>
             <td><%= truncate(product.description, length: 100) %></td>
             <td><%= pluralize(product.skus.count, 'SKU') %></td>
+            
             <td>
               <%= link_to "View", admin_product_path(product), class: "btn btn-sm btn-info" %>
               <%= link_to "Edit", edit_admin_product_path(product), class: "btn btn-sm btn-warning" %>

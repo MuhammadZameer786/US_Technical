@@ -2,12 +2,12 @@
 
 <div class="mb-3">
   <%= link_to "Edit Distributor", edit_admin_distributor_path(@distributor), class: "btn btn-warning" %>
-  <%= link_to "Assign SKU", new_admin_distributor_distributor_sku_path(@distributor), class: "btn btn-success" %>
+  <%= link_to "Assign SKU", new_admin_distributor_sku_path(@distributor), class: "btn btn-success" %>
   <%= link_to "Back to List", admin_distributors_path, class: "btn btn-secondary" %>
 </div>
 
 <h3 class="mb-3">Assigned SKUs and Pricing</h3>
-<% if @distributor_skus.any? %>
+<% if @skus.any? %>
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
@@ -20,15 +20,15 @@
         </tr>
       </thead>
       <tbody>
-        <% @distributor_skus.each do |dist_sku| %>
+        <% @skus.each do |dist_sku| %>
           <tr>
-            <td><%= dist_sku.sku.product.name %></td>
-            <td><%= dist_sku.sku.name %></td>
-            <td><code><%= dist_sku.sku.sku_code %></code></td>
+            <td><%= dist_sku.product.name %></td>
+            <td><%= dist_sku.name %></td>
+            <td><code><%= dist_sku.sku_code %></code></td>
             <td class="fw-bold">R <%= number_with_precision(dist_sku.price, precision: 2) %></td>
             <td>
-              <%= link_to "Edit Price", edit_admin_distributor_distributor_sku_path(@distributor, dist_sku), class: "btn btn-sm btn-warning" %>
-              <%= button_to "Remove", admin_distributor_distributor_sku_path(@distributor, dist_sku), method: :delete, 
+              <%= link_to "Edit Price", edit_admin_distributor_sku_path(dist_sku), class: "btn btn-sm btn-warning" %>
+              <%= button_to "Remove", admin_distributor_sku_path(dist_sku), method: :delete, 
                   data: { confirm: "Remove this SKU from distributor?" }, class: "btn btn-sm btn-danger" %>
             </td>
           </tr>

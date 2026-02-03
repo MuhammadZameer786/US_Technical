@@ -19,6 +19,11 @@
         <%= f.text_field :name, class: "form-control", placeholder: "Enter distributor name", required: true %>
       </div>
 
+      <div class="mb-3">
+        <%= f.label :currency, class: "form-label" %>
+        <%= f.text_field :currency, class: "form-control", placeholder: "Enter distributor currency", required: true %>
+      </div>
+
       <div class="d-flex justify-content-between">
         <%= link_to "Cancel", admin_distributors_path, class: "btn btn-secondary" %>
         <%= f.submit @distributor.new_record? ? "Create Distributor" : "Update Distributor", class: "btn btn-primary" %>

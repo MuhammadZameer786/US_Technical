@@ -11,15 +11,15 @@ Rails.application.routes.draw do
   namespace :admin do
     get "dashboard", to: "dashboard#index"
     resources :distributors do
-      resources :distributor_skus, only: [:new, :create, :edit, :update, :destroy]
+      resources :skus, only: [ :new, :create, :edit, :update, :destroy ]
     end
     resources :products do
-      resources :skus, only: [:new, :create, :edit, :update, :destroy]
+      resources :skus, only: [ :new, :create, :edit, :update, :destroy ]
     end
     resources :users
   end
 
-  # Distributor routes
+# Distributor routes
 namespace :distributors do
   get "dashboard", to: "dashboard#index"
   resources :orders do

@@ -1,13 +1,18 @@
 class Sku < ApplicationRecord
   belongs_to :product
-  has_many :distributor_skus, dependent: :destroy
-  has_many :distributors, through: :distributor_skus
+  belongs_to :distributor
   has_many :order_items
 
   validates :name, presence: true
   validates :sku_code, presence: true, uniqueness: true
 
+  private
+
+  def set_name_from_product
+    self.name = product.name if product && name.blank?
+  end
+
   def price_for_distributor(distributor)
-    distributor_skus.find_by(distributor: distributor)&.price
+    skus.find_by(distributor: distributor)&.price
   end
 end

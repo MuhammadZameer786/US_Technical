@@ -1,15 +1,17 @@
 module Admin
   class DistributorsController < ApplicationController
     before_action :require_admin
-    before_action :set_distributor, only: [:show, :edit, :update, :destroy]
+    before_action :set_distributor, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @distributors = Distributor.all.order(:name)
     end
 
-    def show
-      @distributor_skus = @distributor.distributor_skus.includes(sku: :product)
-    end
+def show
+  @distributor = Distributor.find(params[:id])
+  # Fetch the SKUs directly from the distributor and eager load products
+  @skus = @distributor.skus.includes(:product)
+end
 
     def new
       @distributor = Distributor.new
@@ -53,7 +55,7 @@ module Admin
     end
 
     def distributor_params
-      params.require(:distributor).permit(:name)
+      params.require(:distributor).permit(:name, :currency)
     end
   end
 end

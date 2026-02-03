@@ -29,6 +29,18 @@
         <small class="form-text text-muted">Unique code for this SKU (letters, numbers, and hyphens only)</small>
       </div>
 
+            <div class="mb-3">
+        <%= f.label :name, "SKU Currency", class: "form-label" %>
+        <%= f.text_field :currency, class: "form-control", id: "sku_name", placeholder: "e.g., 60ml Bottle", required: true %>
+        <small class="form-text text-muted">Enter the size or variant (e.g., "125ml Bottle", "200ml Bottle")</small>
+      </div>
+
+            <div class="mb-3">
+        <%= f.label :name, "SKU Price", class: "form-label" %>
+        <%= f.text_field :price, class: "form-control", id: "sku_name", placeholder: "e.g., 60ml Bottle", required: true %>
+        <small class="form-text text-muted">Enter the size or variant (e.g., "125ml Bottle", "200ml Bottle")</small>
+      </div>
+
       <div class="d-flex justify-content-between">
         <%= link_to "Cancel", admin_product_path(@product), class: "btn btn-secondary" %>
         <%= f.submit @sku.new_record? ? "Create SKU" : "Update SKU", class: "btn btn-primary" %>
