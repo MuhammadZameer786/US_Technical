@@ -53,7 +53,12 @@ module Distributors
           end
 
           @order.calculate_total
-          @order.save!
+          if @order.save
+            redirect_to distributors_order_path(@order), notice: "Order placed successfully."
+          else
+            # This sends the user back to the form with the errors preserved
+            render :new, status: :unprocessable_entity
+          end
         end
 
         flash[:notice] = "Order placed successfully!"

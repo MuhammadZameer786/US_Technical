@@ -6,6 +6,7 @@ class Order < ApplicationRecord
   validates :order_number, presence: true, uniqueness: true
   validates :required_delivery_date, presence: true
   validates :total_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validate :delivery_date_cannot_be_in_the_past
 
   before_validation :generate_order_number, on: :create
 
@@ -17,5 +18,11 @@ class Order < ApplicationRecord
 
   def generate_order_number
     self.order_number ||= "ORD-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(4).upcase}"
+  end
+
+  def delivery_date_cannot_be_in_the_past
+    if delivery_date.present? && delivery_date < Date.today
+      errors.add(:delivery_date, "can't be in the past")
+    end
   end
 end

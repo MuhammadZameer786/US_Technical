@@ -40,6 +40,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["distributor_id"], name: "index_orders_on_distributor_id"
+    # Requirement Here
     t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
