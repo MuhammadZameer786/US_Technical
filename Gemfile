@@ -48,6 +48,8 @@ gem "bcrypt", "~> 3.1.7"
 gem "bootstrap", "~> 5.3"
 gem "sassc-rails"
 
+gem 'htmlbeautifier'
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
 end

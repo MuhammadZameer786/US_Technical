@@ -31,6 +31,8 @@
           <tr>
             <td><%= sku.name %></td>
             <td><code><%= sku.sku_code %></code></td>
+            <td><%= sku.('%Y-%m-%d') %></td>
+
             <td><%= sku.created_at.strftime('%Y-%m-%d') %></td>
             <td>
               <%= link_to "Edit", edit_admin_product_sku_path(@product, sku), class: "btn btn-sm btn-warning" %>

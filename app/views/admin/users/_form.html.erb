@@ -1,0 +1,81 @@
+<h1 class="mb-4"><%= @user.new_record? ? 'New User' : 'Edit User' %></h1>
+
+<%= form_with model: @user, url: @user.new_record? ? admin_users_path : admin_user_path(@user), local: true do |f| %>
+  <% if @user.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <%= f.label :email, class: "form-label" %>
+        <%= f.email_field :email, class: "form-control", placeholder: "user@example.com", required: true %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :user_type, "User Type", class: "form-label" %>
+        <%= f.select :user_type, 
+            options_for_select([['Admin', 'admin'], ['Distributor', 'distributor']], @user.user_type),
+            { include_blank: "Select User Type" },
+            { class: "form-select", required: true, id: "user_type_select" } %>
+      </div>
+
+      <div class="mb-3" id="distributor_field" style="<%= 'display: none;' unless @user.distributor? %>">
+        <%= f.label :distributor_id, "Distributor", class: "form-label" %>
+        <%= f.select :distributor_id, 
+            options_from_collection_for_select(@distributors, :id, :name, @user.distributor_id),
+            { include_blank: "Select Distributor" },
+            { class: "form-select" } %>
+        <small class="form-text text-muted">Required for distributor users</small>
+      </div>
+
+      <% if @user.new_record? || params[:change_password] %>
+        <div class="mb-3">
+          <%= f.label :password, class: "form-label" %>
+          <%= f.password_field :password, class: "form-control", placeholder: "Enter password", required: @user.new_record? %>
+          <% unless @user.new_record? %>
+            <small class="form-text text-muted">Leave blank to keep current password</small>
+          <% end %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+          <%= f.password_field :password_confirmation, class: "form-control", placeholder: "Confirm password", required: @user.new_record? %>
+        </div>
+      <% else %>
+        <div class="mb-3">
+          <%= link_to "Change Password", edit_admin_user_path(@user, change_password: true), class: "btn btn-sm btn-outline-warning" %>
+        </div>
+      <% end %>
+
+      <div class="d-flex justify-content-between">
+        <%= link_to "Cancel", admin_users_path, class: "btn btn-secondary" %>
+        <%= f.submit @user.new_record? ? "Create User" : "Update User", class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('user_type_select');
+    const distributorField = document.getElementById('distributor_field');
+    
+    if (userTypeSelect && distributorField) {
+      userTypeSelect.addEventListener('change', function() {
+        if (this.value === 'distributor') {
+          distributorField.style.display = 'block';
+        } else {
+          distributorField.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>

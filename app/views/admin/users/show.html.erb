@@ -1,0 +1,80 @@
+<h1 class="mb-4">User Details</h1>
+
+<div class="mb-3">
+  <%= link_to "Edit User", edit_admin_user_path(@user), class: "btn btn-warning" %>
+  <%= link_to "Back to List", admin_users_path, class: "btn btn-secondary" %>
+  <% unless @user == current_user %>
+    <%= button_to "Delete User", admin_user_path(@user), method: :delete, 
+        data: { confirm: "Are you sure you want to delete this user?" }, class: "btn btn-danger" %>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">User Information</h5>
+    <table class="table table-sm">
+      <tr>
+        <th width="200">Email:</th>
+        <td><%= @user.email %></td>
+      </tr>
+      <tr>
+        <th>User Type:</th>
+        <td>
+          <% if @user.admin? %>
+            <span class="badge bg-danger">Admin</span>
+          <% else %>
+            <span class="badge bg-primary">Distributor</span>
+          <% end %>
+        </td>
+      </tr>
+      <% if @user.distributor? %>
+        <tr>
+          <th>Distributor:</th>
+          <td>
+            <%= link_to @user.distributor.name, admin_distributor_path(@user.distributor), class: "btn btn-sm btn-info" %>
+          </td>
+        </tr>
+      <% end %>
+      <tr>
+        <th>Created:</th>
+        <td><%= @user.created_at.strftime('%B %d, %Y at %I:%M %p') %></td>
+      </tr>
+      <tr>
+        <th>Last Updated:</th>
+        <td><%= @user.updated_at.strftime('%B %d, %Y at %I:%M %p') %></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<% if @user.distributor? %>
+  <div class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">Recent Orders</h5>
+      <% if @user.distributor.orders.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Date</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @user.distributor.orders.order(created_at: :desc).limit(5).each do |order| %>
+                <tr>
+                  <td><%= order.order_number %></td>
+                  <td><%= order.created_at.strftime('%Y-%m-%d') %></td>
+                  <td>R <%= number_with_precision(order.total_amount, precision: 2) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted">No orders yet.</p>
+      <% end %>
+    </div>
+  </div>
+<% end %>
