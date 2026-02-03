@@ -35,12 +35,12 @@
         </tr>
       </thead>
       <tbody>
-        <% @available_skus.each do |dist_sku| %>
+        <% @available_skus.each do |sku| %>
           <tr>
-            <td><%= dist_sku.sku.product.name %></td>
-            <td><%= dist_sku.sku.name %></td>
-            <td><code><%= dist_sku.sku.sku_code %></code></td>
-            <td class="fw-bold">R <%= number_with_precision(dist_sku.price, precision: 2) %></td>
+            <td><%= sku.product.name %></td>
+            <td><%= sku.name %></td>
+            <td><code><%= sku.sku_code %></code></td>
+            <td class="fw-bold"><%= sku.currency || "unknown" %>  <%= number_with_precision(sku.price, precision: 2, delimiter: ',') %></td>
           </tr>
         <% end %>
       </tbody>
@@ -66,7 +66,7 @@
           <tr>
             <td><%= order.order_number %></td>
             <td><%= order.required_delivery_date.strftime('%Y-%m-%d') %></td>
-            <td class="fw-bold">R <%= number_with_precision(order.total_amount, precision: 2) %></td>
+            <td class="fw-bold"><%= order.order_items.first&.sku&.currency || "unknown" %>  <%= number_with_precision(order.total_amount, precision: 2, delimiter: ',') %></td>
             <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
             <td>
               <%= link_to "View", distributors_order_path(order), class: "btn btn-sm btn-info" %>

@@ -31,7 +31,7 @@
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Order Summary</h5>
-        <p class="display-6 text-success">R <%= number_with_precision(@order.total_amount, precision: 2) %></p>
+        <p class="display-6 text-success"><%= @order.order_items.first&.sku&.currency || "unknown" %>  <%= number_with_precision(@order.total_amount, precision: 2, delimiter: ',') %></p>
         <p class="text-muted"><%= pluralize(@order_items.count, 'item') %> ordered</p>
       </div>
     </div>
@@ -57,18 +57,24 @@
           <td><%= item.sku.product.name %></td>
           <td><%= item.sku.name %></td>
           <td><code><%= item.sku.sku_code %></code></td>
-          <td class="text-end">R <%= number_with_precision(item.unit_price, precision: 2) %></td>
+          <td class="text-end"><%= @order.order_items.first&.sku&.currency %>  <%= number_with_precision(item.unit_price, precision: 2, delimiter: ',') %></td>
           <td class="text-center"><strong><%= item.quantity %></strong></td>
-          <td class="text-end fw-bold">R <%= number_with_precision(item.total_price, precision: 2) %></td>
+        <td class="text-end fw-bold"> <%= item.sku.currency %> <%= number_with_precision(item.total_price, precision: 2) %>
+</td>
+        
+        
         </tr>
       <% end %>
     </tbody>
-    <tfoot>
-      <tr class="table-primary">
-        <th colspan="5" class="text-end">Grand Total:</th>
-        <th class="text-end fs-5">R <%= number_with_precision(@order.total_amount, precision: 2) %></th>
-      </tr>
-    </tfoot>
+<tfoot class="table-primary">
+  <tr>
+    <th colspan="5" class="text-end">Grand Total:</th>
+    <th class="text-end">
+      <%= @order.order_items.first&.sku&.currency %> 
+      <%= number_with_precision(@order.total_amount, precision: 2,delimiter: ',') %>
+    </th>
+  </tr>
+</tfoot>
   </table>
 </div>
 

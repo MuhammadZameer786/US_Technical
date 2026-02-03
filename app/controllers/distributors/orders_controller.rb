@@ -12,71 +12,44 @@ module Distributors
     end
 
     def new
-      @distributor = current_user.distributor
-      @available_skus = @distributor.skus.includes(sku: :product)
-
-      if @available_skus.empty?
-        flash[:alert] = "No products are currently available. Please contact the administrator."
-        redirect_to distributors_dashboard_path
-      else
-        @order = Order.new
-      end
+  @order = Order.new
+  # Eager load products to keep the page fast
+  @available_skus = current_user.distributor.skus.includes(:product)
     end
 
-    def create
+def create
       @distributor = current_user.distributor
-      @order = @distributor.orders.build(order_params.merge(user: current_user))
+      @order = @distributor.orders.build(order_params)
+      @order.user = current_user
 
-      begin
-        ActiveRecord::Base.transaction do
-          @order.save!
+      # We wrap this in a transaction for data integrity
+      ActiveRecord::Base.transaction do
+        if @order.save
+          process_order_items
 
-          # Create order items from cart data
-          cart_items = params[:order][:items] || {}
-          cart_items.each do |sku_id, item_data|
-            quantity = item_data[:quantity].to_i
-            next if quantity <= 0
-
-            sku = Sku.find(sku_id)
-            distributor = @distributor.skus.find_by!(sku: sku)
-
-            @order.order_items.create!(
-              sku: sku,
-              quantity: quantity,
-              unit_price: distributor.price,
-              total_price: quantity * distributor.price
-            )
-          end
-
+          # Final check: Did we actually add any items?
           if @order.order_items.empty?
-            raise ActiveRecord::RecordInvalid.new(@order)
-          end
-
-          @order.calculate_total
-          if @order.save
-            redirect_to distributors_order_path(@order), notice: "Order placed successfully."
+            @order.errors.add(:base, "You must select at least one product.")
+            raise ActiveRecord::Rollback # Cancel the save
           else
-            # This sends the user back to the form with the errors preserved
-            render :new, status: :unprocessable_entity
+            @order.calculate_total_amount! # Method to update the grand total
+            flash[:notice] = "Order ##{@order.order_number} placed successfully."
+            redirect_to distributors_order_path(@order) and return
           end
         end
-
-        flash[:notice] = "Order placed successfully!"
-        redirect_to distributors_order_path(@order)
-      rescue ActiveRecord::RecordInvalid => e
-        @available_skus = @distributor.skus.includes(sku: :product)
-        flash.now[:alert] = "Failed to create order. Please check the form and try again."
-        render :new, status: :unprocessable_entity
-      rescue ActiveRecord::RecordNotFound
-        @available_skus = @distributor.skus.includes(sku: :product)
-        flash.now[:alert] = "Invalid SKU selected. You can only order products assigned to your account."
-        render :new, status: :unprocessable_entity
       end
-    end
+
+      # If we reach here, something failed
+      @available_skus = @distributor.skus.includes(:product)
+      flash.now[:alert] = "Failed to place order. Please check your quantities."
+      render :new, status: :unprocessable_entity
+end
 
     def review
       @order_items = @order.order_items.includes(sku: :product)
     end
+
+
 
     private
 
@@ -84,8 +57,28 @@ module Distributors
       @order = current_user.distributor.orders.find(params[:id])
     end
 
-    def order_params
+def order_params
       params.require(:order).permit(:required_delivery_date)
-    end
+end
+
+
+
+
+def process_order_items
+      # Iterate through the items hash from your form: order[items][sku_id][quantity]
+      params[:order][:items].each do |sku_id, item_data|
+        quantity = item_data[:quantity].to_i
+
+        if quantity > 0
+          sku = Sku.find(sku_id)
+          @order.order_items.create!(
+            sku: sku,
+            quantity: quantity, # Number of pallets
+            unit_price: sku.price,
+            total_price: (quantity * OrderItem::UNITS_PER_PALLET * sku.price) # 4800 units per pallet
+          )
+        end
+      end
+end
   end
 end

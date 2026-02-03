@@ -45,6 +45,6 @@
 <div class="alert alert-warning">
   No SKUs assigned to this distributor yet. 
   <%# Link to the new SKU path under products, passing this distributor as a parameter %>
-  <%= link_to "Assign a SKU", admin_products_path %> to get started by selecting a product.
+  <%= link_to "Assign a SKU", admin_products_path(distributor_id: @distributor.id) %> to get started by selecting a product.
 </div>
 <% end %>

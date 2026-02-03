@@ -1,7 +1,8 @@
 <h1 class="mb-4">Place New Order</h1>
 
 <%= form_with model: @order, url: distributors_orders_path, local: true do |f| %>
-  <div class="card mb-4">
+  <%# --- SECTION 1: ORDER DETAILS --- %>
+  <div class="card mb-4 shadow-sm">
     <div class="card-header bg-primary text-white">
       <h5 class="mb-0">Order Details</h5>
     </div>
@@ -11,56 +12,66 @@
           <div class="mb-3">
             <%= f.label :required_delivery_date, "Required Delivery Date", class: "form-label" %>
             <%= f.date_field :required_delivery_date, class: "form-control", min: Date.tomorrow, required: true %>
-            <small class="form-text text-muted">Minimum delivery date is tomorrow</small>
+            <small class="form-text text-muted">Minimum delivery date is tomorrow.</small>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card mb-4">
+  <%# --- SECTION 2: PRODUCT SELECTION --- %>
+  <div class="card mb-4 shadow-sm">
     <div class="card-header bg-secondary text-white">
       <h5 class="mb-0">Select Products</h5>
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table">
+        <table class="table align-middle">
           <thead>
             <tr>
               <th>Product</th>
-              <th>SKU</th>
               <th>SKU Code</th>
               <th>Unit Price</th>
-              <th width="150">Quantity(Pallets) 1 = 4800 units</th>
-              <th>Total</th>
+              <th width="180">Quantity (Pallets)</th>
+              <th>Total Value</th>
             </tr>
           </thead>
           <tbody id="order-items">
-            <% @available_skus.group_by { |ds| ds.sku.product }.each do |product, dist_skus| %>
+            <%# Grouping by product works directly on the SKU objects now %>
+            <% @available_skus.group_by(&:product).each do |product, skus| %>
               <tr class="table-light">
-                <td colspan="6"><strong><%= product.name %></strong></td>
+                <td colspan="5"><strong><%= product.name %></strong></td>
               </tr>
-              <% dist_skus.each do |dist_sku| %>
-                <tr class="order-item-row" data-price="<%= dist_sku.price %>">
-                  <td><%= dist_sku.sku.product.name %></td>
-                  <td><%= dist_sku.sku.name %></td>
-                  <td><code><%= dist_sku.sku.sku_code %></code></td>
-                  <td class="unit-price">R <%= number_with_precision(dist_sku.price, precision: 2) %></td>
-                  <td>
-                    <%= number_field_tag "order[items][#{dist_sku.sku.id}][quantity]", 0, 
-                        min: 0, 
-                        class: "form-control quantity-input", 
-                        data: { sku_id: dist_sku.sku.id } %>
+              <% skus.each do |sku| %>
+                <tr class="order-item-row" data-price="<%= sku.price %>" data-currency="<%= sku.currency %>">
+                  <td><%= sku.name %></td>
+                  <td><code><%= sku.sku_code %></code></td>
+                  <td class="unit-price">
+                    <%= sku.currency %> <%= number_with_precision(sku.price, precision: 2) %>
                   </td>
-                  <td class="item-total fw-bold">R 0.00</td>
+                  <td>
+                    <div class="input-group">
+                      <%= number_field_tag "order[items][#{sku.id}][quantity]", 0, 
+                          min: 0, 
+                          class: "form-control quantity-input", 
+                          data: { sku_id: sku.id } %>
+                      <span class="input-group-text">Plt</span>
+                    </div>
+                    <small class="text-muted">1 Plt = 4,800 units</small>
+                  </td>
+                  <td class="item-total fw-bold text-primary">
+                    <%= sku.currency %> 0.00
+                  </td>
                 </tr>
               <% end %>
             <% end %>
           </tbody>
           <tfoot>
             <tr class="table-primary">
-              <th colspan="5" class="text-end">Grand Total:</th>
-              <th id="grand-total" class="fs-4">R 0.00</th>
+              <th colspan="4" class="text-end align-middle">Grand Total:</th>
+              <th id="grand-total" class="fs-4">
+                <%= @available_skus.first&.currency || 'ZAR' %> 0.00
+              </th>
             </tr>
           </tfoot>
         </table>
@@ -68,9 +79,9 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-between">
-    <%= link_to "Cancel", distributors_dashboard_path, class: "btn btn-secondary" %>
-    <%= f.submit "Place Order", class: "btn btn-success btn-lg", id: "submit-order" %>
+  <div class="d-flex justify-content-between mb-5">
+    <%= link_to "Cancel", distributors_dashboard_path, class: "btn btn-outline-secondary" %>
+    <%= f.submit "Place Order", class: "btn btn-success btn-lg", id: "submit-order", disabled: true %>
   </div>
 <% end %>
 
@@ -83,15 +94,20 @@
     function updateTotals() {
       let grandTotal = 0;
       let hasItems = false;
+      let currencySymbol = "ZAR"; // Default
 
       document.querySelectorAll('.order-item-row').forEach(function(row) {
         const quantityInput = row.querySelector('.quantity-input');
         const quantity = parseInt(quantityInput.value) || 0;
         const price = parseFloat(row.dataset.price);
-        const unitsPerpallet = 4800 
-        const total = unitsPerpallet * quantity * price;
+        const currency = row.dataset.currency;
+        currencySymbol = currency; // Store for the grand total
 
-        row.querySelector('.item-total').textContent = total.toLocaleString('en-ZA',{style: 'currency', currency:'USD'});
+        const unitsPerPallet = <%= OrderItem::UNITS_PER_PALLET %>;
+        const total = unitsPerPallet * quantity * price;
+
+        // Display individual row total
+        row.querySelector('.item-total').textContent = `${currency} ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         
         if (quantity > 0) {
           hasItems = true;
@@ -99,23 +115,17 @@
         }
       });
 
-      grandTotalElement.textContent = grandTotal.toLocaleString('en-ZA',{style: 'currency', currency:'ZAR'});
+      // Update Grand Total
+      grandTotalElement.textContent = `${currencySymbol} ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       
-      // Disable submit button if no items
+      // Toggle submit button
       submitButton.disabled = !hasItems;
-      if (!hasItems) {
-        submitButton.classList.add('disabled');
-      } else {
-        submitButton.classList.remove('disabled');
-      }
     }
 
     quantityInputs.forEach(function(input) {
       input.addEventListener('input', updateTotals);
-      input.addEventListener('change', updateTotals);
     });
 
-    // Initial calculation
-    updateTotals();
+    updateTotals(); // Run on load
   });
 </script>

@@ -21,8 +21,16 @@ class Order < ApplicationRecord
   end
 
   def delivery_date_cannot_be_in_the_past
-    if delivery_date.present? && delivery_date < Date.today
-      errors.add(:delivery_date, "can't be in the past")
+    if required_delivery_date.present? && required_delivery_date < Date.today
+      errors.add(:required_delivery_date, "can't be in the past")
     end
+
+def calculate_total_amount!
+    # 1. Sum up the total_price of all associated order_items
+    new_total = order_items.sum(:total_price)
+
+    # 2. Update the total_amount column in the database
+    update!(total_amount: new_total)
+end
   end
 end

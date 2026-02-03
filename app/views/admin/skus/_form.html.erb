@@ -90,6 +90,7 @@
     const codeField = document.getElementById('sku_code');
     const currencyAddon = document.getElementById('currency_addon');
 
+    // Data for currency display
     const distributorCurrencies = {
       <% Distributor.all.each do |d| %>
         "<%= d.id %>": "<%= d.currency %>",
@@ -102,22 +103,49 @@
         currencyAddon.textContent = distributorCurrencies[distributorSelect.value] || "Price";
       }
 
-      // 2. Simple Auto-code Generator (Optional)
+      // 2. Dynamic Auto-code Generator
       <% if @sku.new_record? %>
-        const distName = distributorSelect ? (distributorSelect.options[distributorSelect.selectedIndex]?.text || "") : "<%= @distributor&.name %>";
-        const prodName = productSelect ? (productSelect.options[productSelect.selectedIndex]?.text || "") : "<%= @product&.name %>";
+        // Get names from either dropdowns or static variables
+        const distName = distributorSelect ? (distributorSelect.options[distributorSelect.selectedIndex]?.text || "") : "<%= j @distributor&.name %>";
+        const prodName = productSelect ? (productSelect.options[productSelect.selectedIndex]?.text || "") : "<%= j @product&.name %>";
         
-        if (distName && prodName && codeField.value === "") {
-          const pPrefix = prodName.substring(0,3).toUpperCase();
-          const dPrefix = distName.substring(0,3).toUpperCase();
-          codeField.value = `${pPrefix}-${dPrefix}-${Math.floor(Math.random()*900) + 100}`;
+        // We only generate if BOTH names are available
+        // Note: Removed codeField.value === "" so it updates on every change
+        if (distName && distName !== "Select a Distributor" && prodName && prodName !== "Select a Product") {
+          
+          // Product Prefix: First letter of each word
+          const prefixArray = prodName.split(" ");
+          let pPrefix = '';
+          for(let word of prefixArray){
+            pPrefix += word.substring(0,1).toUpperCase();
+          }
+
+          // Distributor Prefix: First two letters of each word
+          const dPrefixArray = distName.split(' ');
+          let dPrefix = '';
+          dPrefixArray.forEach((word) => {
+            dPrefix += word.substring(0,2).toUpperCase();
+          });
+
+          // Generate the final code
+          // We add a data-attribute to check if the user has manually typed something
+          if (!codeField.dataset.userEdited) {
+            const randomSuffix = Math.floor(Math.random() * 900) + 100;
+            codeField.value = `${pPrefix}-${dPrefix}-${randomSuffix}`;
+          }
         }
       <% end %>
     }
 
+    // Listeners
     if (distributorSelect) distributorSelect.addEventListener('change', updateFormLogic);
     if (productSelect) productSelect.addEventListener('change', updateFormLogic);
     
+    // Mark as "User Edited" if the user types manually so we don't overwrite their work
+    codeField.addEventListener('input', () => {
+      codeField.dataset.userEdited = "true";
+    });
+
     updateFormLogic(); // Run on load
   });
 </script>

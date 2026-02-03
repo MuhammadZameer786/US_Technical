@@ -1,114 +1,34 @@
-<%# app/views/admin/skus/_form.html.erb %>
+<h1 class="mb-4"><%= @distributor.new_record? ? 'New Distributor' : 'Edit Distributor' %></h1>
 
-<h1 class="mb-4">
-  <%= @sku.new_record? ? 'Add SKU' : 'Edit SKU' %> 
-  <%# Use &. to prevent crashing if @product is nil %>
-  <%= "for #{@product&.name}" if @product %>
-</h1>
-
-<%# Dynamic URL: Handles both nested (/products/1/skus) and shallow (/skus/1) paths %>
-<%= form_with model: [:admin, @product, @sku], local: true do |f| %>
-  <% if @sku.errors.any? %>
+<%= form_with model: @distributor, url: @distributor.new_record? ? admin_distributors_path : admin_distributor_path(@distributor), local: true do |f| %>
+  <% if @distributor.errors.any? %>
     <div class="alert alert-danger">
-      <h4><%= pluralize(@sku.errors.count, "error") %> prohibited this SKU from being saved:</h4>
+      <h4><%= pluralize(@distributor.errors.count, "error") %> prohibited this distributor from being saved:</h4>
       <ul>
-        <% @sku.errors.full_messages.each do |message| %>
+        <% @distributor.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="card-body">
-      
-      <%# --- PRODUCT SELECTION SECTION --- %>
-      <div class="mb-3">
-        <%= f.label :product_id, "Product", class: "form-label" %>
-        <% if @product %>
-          <%# Scenario: Coming from Product page - Read-only %>
-          <%= f.hidden_field :product_id, value: @product.id %>
-          <input type="text" class="form-control bg-light" value="<%= @product.name %>" readonly>
-          <small class="form-text text-muted">SKU name will be automatically set to match this product.</small>
-        <% else %>
-          <%# Scenario: Coming from Distributor page - Dropdown required %>
-          <%= f.collection_select :product_id, Product.order(:name), :id, :name, 
-              { prompt: "Select a Product" }, 
-              { class: "form-select", id: "product_select", required: true } %>
-        <% end %>
-      </div>
 
-      <%# --- DISTRIBUTOR SELECTION SECTION --- %>
       <div class="mb-3">
-        <%= f.label :distributor_id, "Distributor", class: "form-label" %>
-        <% if @distributor %>
-           <%# If we already have the distributor context %>
-           <%= f.hidden_field :distributor_id, value: @distributor.id %>
-           <input type="text" class="form-control bg-light" value="<%= @distributor.name %>" readonly>
-        <% else %>
-          <%= f.collection_select :distributor_id, Distributor.order(:name), :id, :name, 
-              { prompt: "Select a Distributor" }, 
-              { class: "form-select", id: "distributor_select", required: true } %>
-        <% end %>
+        <%= f.label :name, class: "form-label" %>
+        <%= f.text_field :name, class: "form-control", placeholder: "Enter distributor name", required: true %>
       </div>
 
       <div class="mb-3">
-        <%= f.label :sku_code, "SKU Code", class: "form-label" %>
-        <%= f.text_field :sku_code, class: "form-control", id: "sku_code", placeholder: "e.g. BIO-OIL-CT-001", required: true %>
-        <small class="form-text text-muted">Unique identifier for this specific distributor pricing.</small>
+        <%= f.label :currency, class: "form-label" %>
+        <%= f.text_field :currency, class: "form-control", placeholder: "Enter distributor currency", required: true %>
       </div>
 
-      <div class="mb-3">
-        <%= f.label :price, "Unit Price", class: "form-label" %>
-        <div class="input-group">
-          <span class="input-group-text" id="currency_addon"><%= @sku.currency || "Price" %></span>
-          <%= f.number_field :price, step: 0.01, class: "form-control", placeholder: "0.00", required: true %>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-between mt-4">
-        <%= link_to "Cancel", :back, class: "btn btn-outline-secondary" %>
-        <%= f.submit @sku.new_record? ? "Create SKU" : "Update SKU", class: "btn btn-primary" %>
+      <div class="d-flex justify-content-between">
+        <%= link_to "Cancel", admin_distributors_path, class: "btn btn-secondary" %>
+        <%= f.submit @distributor.new_record? ? "Create Distributor" : "Update Distributor", class: "btn btn-primary" %>
       </div>
     </div>
   </div>
 <% end %>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const distributorSelect = document.getElementById('distributor_select');
-    const productSelect = document.getElementById('product_select');
-    const codeField = document.getElementById('sku_code');
-    const currencyAddon = document.getElementById('currency_addon');
-
-    const distributorCurrencies = {
-      <% Distributor.all.each do |d| %>
-        "<%= d.id %>": "<%= d.currency %>",
-      <% end %>
-    };
-
-    function updateFormLogic() {
-      // 1. Update Currency Symbol
-      if (distributorSelect && distributorSelect.value) {
-        currencyAddon.textContent = distributorCurrencies[distributorSelect.value] || "Price";
-      }
-
-      // 2. Simple Auto-code Generator (Optional)
-      <% if @sku.new_record? %>
-        const distName = distributorSelect ? (distributorSelect.options[distributorSelect.selectedIndex]?.text || "") : "<%= @distributor&.name %>";
-        const prodName = productSelect ? (productSelect.options[productSelect.selectedIndex]?.text || "") : "<%= @product&.name %>";
-        
-        if (distName && prodName && codeField.value === "") {
-          const pPrefix = prodName.substring(0,3).toUpperCase();
-          const dPrefix = distName.substring(0,3).toUpperCase();
-          codeField.value = `${pPrefix}-${dPrefix}-${Math.floor(Math.random()*900) + 100}`;
-        }
-      <% end %>
-    }
-
-    if (distributorSelect) distributorSelect.addEventListener('change', updateFormLogic);
-    if (productSelect) productSelect.addEventListener('change', updateFormLogic);
-    
-    updateFormLogic(); // Run on load
-  });
-</script>
