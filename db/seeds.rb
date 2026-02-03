@@ -16,7 +16,7 @@ User.create!(
 
 puts "\nCreating Distributors..."
 cape_beauty = Distributor.create!(name: 'Cape Beauty Supplies', currency: 'ZAR')
-wellness = Distributor.create!(name: 'Wellness Distribution SA', currency: 'ZAR')
+wellness = Distributor.create!(name: 'Wellness Distribution SA', currency: 'USD')
 
 # Distributor Users
 User.create!(

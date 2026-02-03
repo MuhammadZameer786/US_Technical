@@ -1,48 +1,58 @@
+<%# app/views/admin/skus/_form.html.erb %>
+
 <h1 class="mb-4">
   <%= @sku.new_record? ? 'Add SKU to' : 'Edit SKU for' %> 
   <%= @product.name %>
 </h1>
 
-<%= form_with model: @sku, url: @sku.new_record? ? admin_product_skus_path(@product) : admin_product_sku_path(@product, @sku), local: true do |f| %>
+<%# We use an array for the model to handle the nested routing /admin/products/:product_id/skus %>
+<%= form_with model: [:admin, @product, @sku], local: true do |f| %>
   <% if @sku.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(@sku.errors.count, "error") %> prohibited this SKU from being saved:</h4>
       <ul>
         <% @sku.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
+          <li><%= message %> </li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div class="card">
+  <div class="card shadow-sm">
     <div class="card-body">
+      
+      <%# SKU Name: Displayed but uneditable per Union Swiss requirements %>
       <div class="mb-3">
-        <%= f.label :name, "SKU Name", class: "form-label" %>
-        <%= f.text_field :name, class: "form-control", id: "sku_name", placeholder: "e.g., 60ml Bottle", required: true %>
-        <small class="form-text text-muted">Enter the size or variant (e.g., "125ml Bottle", "200ml Bottle")</small>
+        <%= f.label :name, "SKU Name (Inherited from Product)", class: "form-label text-muted" %> 
+        <%= f.text_field :name, value: @product.name, class: "form-control bg-light", readonly: true %> 
+        <small class="form-text text-muted">The SKU name is automatically set to match the Product name.</small>
+      </div>
+
+      <%# Distributor Selection: This drives the SKU Code generation %>
+      <div class="mb-3">
+        <%= f.label :distributor_id, "Distributor", class: "form-label" %>
+        <%= f.collection_select :distributor_id, Distributor.all, :id, :name, 
+            { prompt: "Select a Distributor" }, 
+            { class: "form-select", id: "distributor_select", required: true } %>
       </div>
 
       <div class="mb-3">
         <%= f.label :sku_code, "SKU Code", class: "form-label" %>
-        <%= f.text_field :sku_code, class: "form-control", id: "sku_code", placeholder: "e.g., BIO-OIL-60ML", required: true %>
-        <small class="form-text text-muted">Unique code for this SKU (letters, numbers, and hyphens only)</small>
+        <%= f.text_field :sku_code, class: "form-control", id: "sku_code", placeholder: "Generated automatically...", required: true %>
+        <small class="form-text text-muted">This code is uniquely generated based on the Product and Distributor.</small>
       </div>
 
-            <div class="mb-3">
-        <%= f.label :name, "SKU Currency", class: "form-label" %>
-        <%= f.text_field :currency, class: "form-control", id: "sku_name", placeholder: "e.g., 60ml Bottle", required: true %>
-        <small class="form-text text-muted">Enter the size or variant (e.g., "125ml Bottle", "200ml Bottle")</small>
+      <div class="mb-3">
+        <%= f.label :price, "Unit Price", class: "form-label" %>
+        <div class="input-group">
+          <%# This span will be updated by JS to show the distributor's currency %>
+          <span class="input-group-text" id="currency_addon">0.00</span>
+          <%= f.number_field :price, step: 0.01, class: "form-control", placeholder: "0.00", required: true %>
+        </div>
       </div>
 
-            <div class="mb-3">
-        <%= f.label :name, "SKU Price", class: "form-label" %>
-        <%= f.text_field :price, class: "form-control", id: "sku_name", placeholder: "e.g., 60ml Bottle", required: true %>
-        <small class="form-text text-muted">Enter the size or variant (e.g., "125ml Bottle", "200ml Bottle")</small>
-      </div>
-
-      <div class="d-flex justify-content-between">
-        <%= link_to "Cancel", admin_product_path(@product), class: "btn btn-secondary" %>
+      <div class="d-flex justify-content-between mt-4">
+        <%= link_to "Cancel", admin_product_path(@product), class: "btn btn-outline-secondary" %>
         <%= f.submit @sku.new_record? ? "Create SKU" : "Update SKU", class: "btn btn-primary" %>
       </div>
     </div>
@@ -51,40 +61,48 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const nameField = document.getElementById('sku_name');
+    const distributorSelect = document.getElementById('distributor_select');
     const codeField = document.getElementById('sku_code');
+    const currencyAddon = document.getElementById('currency_addon');
     
-    // Get product name from Rails and convert to uppercase prefix
-    const productName = "<%= @product.name.gsub("'", "\\\\'") %>";
-    const productPrefix = productName
-      .split(' ')
-      .map(word => word.toUpperCase())
-      .join('-');
+    // Get product name from Rails and sanitize for JS
+    const productName = "<%= j @product.name %>";
     
-    // Auto-fill SKU code when name field changes
-    nameField.addEventListener('input', function() {
-      // Only auto-fill if code field is empty or still has the auto-generated format
-      const currentCode = codeField.value;
-      const shouldAutoFill = !currentCode || currentCode.startsWith(productPrefix);
+    // We can embed a small mapping of Distributor IDs to Currencies for the UI
+    const distributorCurrencies = {
+      <% Distributor.all.each do |d| %>
+        "<%= d.id %>": "<%= d.currency %>",
+      <% end %>
+    };
+
+    function updateSkuForm() {
+      const selectedId = distributorSelect.value;
+      const distributorName = distributorSelect.options[distributorSelect.selectedIndex].text;
       
-      if (shouldAutoFill && this.value.trim()) {
-        // Convert SKU name to code format
-        const skuSuffix = this.value
-          .trim()
-          .toUpperCase()
-          .replace(/[^A-Z0-9]+/g, '-')  // Replace non-alphanumeric with hyphens
-          .replace(/^-+|-+$/g, '');      // Remove leading/trailing hyphens
+      if (selectedId) {
+        // 1. Update Currency Label
+        currencyAddon.textContent = distributorCurrencies[selectedId] || "Price";
+
+        // 2. Auto-generate SKU Code if it's a new record or empty
+        // Format: PROD-DIST-RANDOM (You can customize this logic)
+        const prodPart = productName.split(' ').map(w => w[0]).join('').toUpperCase();
+        const distPart = distributorName.split(' ').map(w => w[0]).join('').toUpperCase();
         
-        // Combine product prefix with SKU suffix
-        codeField.value = productPrefix + '-' + skuSuffix;
+        <% if @sku.new_record? %>
+          if (codeField.value === "" || codeField.dataset.autoGenerated === "true") {
+             const timestamp = new Date().getTime().toString().slice(-4);
+             codeField.value = `${distPart}-${prodPart}-${timestamp}`;
+             codeField.dataset.autoGenerated = "true";
+          }
+        <% end %>
       }
-    });
-    
-    // Optional: Pre-fill with just product name if creating new SKU
-    <% if @sku.new_record? %>
-      if (!codeField.value) {
-        codeField.placeholder = productPrefix + '-...';
-      }
-    <% end %>
+    }
+
+    distributorSelect.addEventListener('change', updateSkuForm);
+
+    // Run once on load if distributor is already selected (e.g., during 'edit' or failed validation)
+    if (distributorSelect.value) {
+      updateSkuForm();
+    }
   });
 </script>

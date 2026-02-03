@@ -6,10 +6,16 @@ class Sku < ApplicationRecord
   validates :name, presence: true
   validates :sku_code, presence: true, uniqueness: true
 
+  before_validation :sync_currency_from_distributor
+
   private
 
   def set_name_from_product
     self.name = product.name if product && name.blank?
+  end
+
+  def sync_currency_from_distributor
+    self.currency = distributor&.currency
   end
 
   def price_for_distributor(distributor)
