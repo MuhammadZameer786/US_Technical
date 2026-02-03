@@ -1,24 +1,39 @@
 module Admin
   class SkusController < ApplicationController
     before_action :require_admin
-    before_action :set_product
     before_action :set_sku, only: [ :edit, :update, :destroy ]
+    before_action :set_product
 
-    def new
-      @sku = @product.skus.build
+def new
+  @product = Product.find(params[:product_id])
+  @sku = @product.skus.build
+
+  # If a distributor_id is in the URL, pre-assign it to the SKU
+  if params[:distributor_id]
+    @sku.distributor_id = params[:distributor_id]
+  end
+end
+
+def create
+  # Extract product_id from the form if @product isn't set via URL
+  p_id = params[:product_id] || sku_params[:product_id]
+  @product = Product.find_by(id: p_id)
+
+  if @product
+    @sku = @product.skus.build(sku_params)
+    if @sku.save
+      flash[:notice] = "SKU created successfully."
+      redirect_to admin_product_path(@product)
+    else
+      render :new, status: :unprocessable_entity
     end
-
-    def create
-      @sku = @product.skus.build(sku_params)
-
-      if @sku.save
-        flash[:notice] = "SKU created successfully."
-        redirect_to admin_product_path(@product)
-      else
-        flash.now[:alert] = "Failed to create SKU."
-        render :new, status: :unprocessable_entity
-      end
-    end
+  else
+    # Handle the case where someone tries to save without a product selected
+    @sku = Sku.new(sku_params)
+    @sku.errors.add(:product_id, "must be selected")
+    render :new, status: :unprocessable_entity
+  end
+end
 
     def edit
   @sku = Sku.find(params[:id])
@@ -63,10 +78,18 @@ def set_sku
 end
 
 def set_product
-  # Ensure @product is set so the redirect_to admin_product_path(@product) works
-  @product = @sku ? @sku.product : Product.find(params[:product_id] || params[:id])
+      if params[:product_id]
+        @product = Product.find(params[:product_id])
+      elsif params[:id] && !params[:distributor_id]
+        # If the ID in the URL is the Product ID (nested route)
+        @product = Product.find(params[:id])
+      elsif @sku
+        # If we are editing, get it from the SKU
+        @product = @sku.product
+      end
+  # If none of the above, @product stays nil (which we handle in the view)
 end
     def sku_params
-params.require(:sku).permit(:name, :sku_code, :price, :distributor_id, :currency)    end
+params.require(:sku).permit(:name, :sku_code, :price, :distributor_id, :currency, :product_id)  end
   end
 end

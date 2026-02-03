@@ -4,6 +4,13 @@
   <%= link_to "Add New Product", new_admin_product_path, class: "btn btn-primary" %>
 </div>
 
+
+<% if params[:distributor_id] %>
+  <div class="alert alert-info">
+    Selecting a product to assign to <strong><%= Distributor.find(params[:distributor_id]).name %></strong>
+  </div>
+<% end %>
+
 <% if @products.any? %>
   <div class="table-responsive">
     <table class="table table-striped">
@@ -23,9 +30,23 @@
             <td><%= pluralize(product.skus.count, 'SKU') %></td>
             
             <td>
-              <%= link_to "View", admin_product_path(product), class: "btn btn-sm btn-info" %>
-              <%= link_to "Edit", edit_admin_product_path(product), class: "btn btn-sm btn-warning" %>
-              <%= button_to "Delete", admin_product_path(product), method: :delete, 
+
+
+<% if params[:distributor_id] %>
+  <%# Selection Mode: Go straight to the SKU form %>
+  <%= link_to "Select", 
+      new_admin_product_sku_path(product, distributor_id: params[:distributor_id]), 
+      class: "btn btn-sm btn-success" %>
+<% else %>
+  <%# Standard Mode: Go to Product Details %>
+  <%= link_to "View", 
+      admin_product_path(product), 
+      class: "btn btn-sm btn-info" %>
+<% end %>
+
+
+       <%= link_to "Edit", edit_admin_product_path(product), class: "btn btn-sm btn-warning" %>
+        <%= button_to "Delete", admin_product_path(product), method: :delete, 
                   data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-danger" %>
             </td>
           </tr>

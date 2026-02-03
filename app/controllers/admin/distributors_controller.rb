@@ -1,17 +1,19 @@
+# app/controllers/admin/distributors_controller.rb
 module Admin
   class DistributorsController < ApplicationController
     before_action :require_admin
     before_action :set_distributor, only: [ :show, :edit, :update, :destroy ]
 
+    # List all distributors
     def index
       @distributors = Distributor.all.order(:name)
     end
 
-def show
-  @distributor = Distributor.find(params[:id])
-  # Fetch the SKUs directly from the distributor and eager load products
-  @skus = @distributor.skus.includes(:product)
-end
+    # Show specific distributor details and their SKUs
+    def show
+      # @distributor is set by set_distributor
+      @skus = @distributor.skus.includes(:product)
+    end
 
     def new
       @distributor = Distributor.new
@@ -22,9 +24,10 @@ end
 
       if @distributor.save
         flash[:notice] = "Distributor created successfully."
-        redirect_to admin_distributor_path(@distributor)
+        # Redirects back to the list of distributors
+        redirect_to admin_distributors_path
       else
-        flash.now[:alert] = "Failed to create distributor."
+        flash.now[:alert] = "Failed to create distributor. Please check the errors below."
         render :new, status: :unprocessable_entity
       end
     end
@@ -35,7 +38,8 @@ end
     def update
       if @distributor.update(distributor_params)
         flash[:notice] = "Distributor updated successfully."
-        redirect_to admin_distributor_path(@distributor)
+        # Redirects back to the list after editing
+        redirect_to admin_distributors_path
       else
         flash.now[:alert] = "Failed to update distributor."
         render :edit, status: :unprocessable_entity
@@ -55,6 +59,7 @@ end
     end
 
     def distributor_params
+      # Whitelisting name and currency for the database
       params.require(:distributor).permit(:name, :currency)
     end
   end
