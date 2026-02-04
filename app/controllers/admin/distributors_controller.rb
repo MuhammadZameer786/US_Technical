@@ -1,12 +1,13 @@
 # app/controllers/admin/distributors_controller.rb
 module Admin
   class DistributorsController < ApplicationController
+    include Pagy::Backend
     before_action :require_admin
     before_action :set_distributor, only: [ :show, :edit, :update, :destroy ]
 
     # List all distributors
     def index
-      @distributors = Distributor.all.order(:name)
+      @pagy, @distributors = pagy(Distributor.all.order(:name), items: 1)
     end
 
     # Show specific distributor details and their SKUs
@@ -17,6 +18,7 @@ module Admin
 
     def new
       @distributor = Distributor.new
+      @distributor.users.build
     end
 
     def create
@@ -25,7 +27,7 @@ module Admin
       if @distributor.save
         flash[:notice] = "Distributor created successfully."
         # Redirects back to the list of distributors
-        redirect_to admin_distributors_path
+        redirect_to admin_distributors_path, notice: "Distributor and primary user created."
       else
         flash.now[:alert] = "Failed to create distributor. Please check the errors below."
         render :new, status: :unprocessable_entity
@@ -58,9 +60,9 @@ module Admin
       @distributor = Distributor.find(params[:id])
     end
 
-    def distributor_params
-      # Whitelisting name and currency for the database
-      params.require(:distributor).permit(:name, :currency)
-    end
+def distributor_params
+  params.require(:distributor).permit(:name, :currency,
+    users_attributes: [ :id, :email, :password, :user_type ])
+end
   end
 end

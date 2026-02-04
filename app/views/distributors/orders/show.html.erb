@@ -59,7 +59,7 @@
           <td><code><%= item.sku.sku_code %></code></td>
           <td class="text-end"><%= @order.order_items.first&.sku&.currency %>  <%= number_with_precision(item.unit_price, precision: 2, delimiter: ',') %></td>
           <td class="text-center"><strong><%= item.quantity %></strong></td>
-        <td class="text-end fw-bold"> <%= item.sku.currency %> <%= number_with_precision(item.total_price, precision: 2) %>
+        <td class="text-end fw-bold"> <%= item.sku.currency %> <%= number_with_precision(item.total_price, precision: 2, delimiter: ',') %>
 </td>
         
         

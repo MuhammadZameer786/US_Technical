@@ -11,7 +11,7 @@
         <tr>
           <th>Name</th>
           <th>Currency Code</th>
-          <th>Created</th>
+          <th>Email</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -20,9 +20,9 @@
           <tr>
             <td><strong><%= distributor.name %></strong></td>
             <td><%= distributor.currency%></td>
-
-            <td><%= distributor.created_at.strftime('%Y-%m-%d') %></td>
-            
+            <td>
+            <%= distributor.users.map(&:email).join(", ") %>            
+            </td>    
             <td>
               <%= link_to "View", admin_distributor_path(distributor), class: "btn btn-sm btn-info" %>
               <%= link_to "Edit", edit_admin_distributor_path(distributor), class: "btn btn-sm btn-warning" %>
@@ -33,6 +33,10 @@
         <% end %>
       </tbody>
     </table>
+  </div>
+  <%# The pagination links go here, outside the table div %>
+  <div class="d-flex justify-content-center mt-4">
+    <%== pagy_bootstrap_nav(@pagy) %>
   </div>
 <% else %>
   <p class="text-muted">No distributors yet.</p>

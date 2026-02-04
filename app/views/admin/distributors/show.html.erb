@@ -30,10 +30,11 @@
             <td><%= dist_sku.product.name %></td>
             <td><%= dist_sku.name %></td>
             <td><code><%= dist_sku.sku_code %></code></td>
-            <td class="fw-bold">R <%= number_with_precision(dist_sku.price, precision: 2) %></td>
+            <td class="fw-bold"><%= dist_sku.currency%> <%= number_with_precision(dist_sku.price, precision: 2) %></td>
+            
             <td>
-              <%= link_to "Edit Price", edit_admin_distributor_sku_path(dist_sku), class: "btn btn-sm btn-warning" %>
-              <%= button_to "Remove", admin_distributor_sku_path(dist_sku), method: :delete, 
+              <%= link_to "Edit Price", edit_admin_distributor_sku_path(@distributor, dist_sku), class: "btn btn-sm btn-warning" %>
+              <%= button_to "Remove", admin_distributor_sku_path(@distributor, dist_sku), method: :delete, 
                   data: { confirm: "Remove this SKU from distributor?" }, class: "btn btn-sm btn-danger" %>
             </td>
           </tr>

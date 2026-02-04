@@ -8,8 +8,14 @@ class Sku < ApplicationRecord
 
   before_validation :sync_currency_from_distributor
 
+  scope :active, -> { where(discarded_at: nil) }
+
+
   private
 
+  def soft_delete
+    update(discarded_at(Time.current))
+  end
   def set_name_from_product
     self.name = product.name if product && name.blank?
   end
@@ -20,5 +26,7 @@ class Sku < ApplicationRecord
 
   def price_for_distributor(distributor)
     skus.find_by(distributor: distributor)&.price
+  end
+  def active!
   end
 end

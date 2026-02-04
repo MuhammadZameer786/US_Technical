@@ -13,7 +13,15 @@ class Order < ApplicationRecord
   def calculate_total
     self.total_amount = order_items.sum(&:total_price)
   end
+  # Allow searching these specific columns
+  def self.ransackable_attributes(auth_object = nil)
+    [ "order_number", "total_amount", "required_delivery_date", "created_at" ]
+  end
 
+  # Allow searching across these relationships
+  def self.ransackable_associations(auth_object = nil)
+    [ "distributor", "user" ]
+  end
   private
 
   def generate_order_number

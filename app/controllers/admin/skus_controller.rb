@@ -5,12 +5,13 @@ module Admin
     before_action :set_product
 
 def new
-  @product = Product.find(params[:product_id])
-  @sku = @product.skus.build
+  @product = Product.find_by(id: params[:product_id])
+  @sku = @product ? @product.skus.build : Sku.new
 
-  # If a distributor_id is in the URL, pre-assign it to the SKU
   if params[:distributor_id]
-    @sku.distributor_id = params[:distributor_id]
+    @distributor = Distributor.find(params[:distributor_id])
+    @sku.distributor_id = @distributor.id
+    @sku.currency = @distributor.currency
   end
 end
 
@@ -21,6 +22,7 @@ def create
 
   if @product
     @sku = @product.skus.build(sku_params)
+    @sku.name = @product.name
     if @sku.save
       flash[:notice] = "SKU created successfully."
       redirect_to admin_product_path(@product)
@@ -45,11 +47,11 @@ def update
   if @sku.update(sku_params)
     flash[:notice] = "SKU updated successfully."
 
-    # Check if we came from the distributor path
-    if params[:distributor_id]
-      redirect_to admin_distributor_path(params[:distributor_id])
+    # Use the @distributor set in set_sku or the param
+    if params[:distributor_id] || @distributor
+      redirect_to admin_distributor_path(params[:distributor_id] || @distributor.id)
     else
-      redirect_to admin_product_path(@product)
+      redirect_to admin_product_path(@sku.product_id)
     end
   else
     render :edit, status: :unprocessable_entity
@@ -66,15 +68,17 @@ end
 
 
 def set_sku
+  # 1. Always find the SKU by its primary ID first.
+  # This ID (22 in your example) is unique across the whole table.
+  @sku = Sku.find(params[:id])
+
+  # 2. If you are in a distributor context, you can set @distributor
+  # for your breadcrumbs or headers, but don't use it for the SKU lookup.
   if params[:distributor_id]
-    # In your route /admin/distributors/9/skus/7/edit:
-    # params[:distributor_id] is 9
-    # params[:id] is 7 (the product_id)
-    @sku = Sku.find_by!(distributor_id: params[:distributor_id], product_id: params[:id])
-  else
-    # Standard fallback for /admin/products/7/skus/ID
-    @sku = Sku.find(params[:id])
+    @distributor = Distributor.find(params[:distributor_id])
   end
+rescue ActiveRecord::RecordNotFound
+  redirect_to admin_distributors_path, alert: "The SKU you are looking for does not exist."
 end
 
 def set_product

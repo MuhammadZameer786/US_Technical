@@ -47,19 +47,31 @@
         <% end %>
       </div>
 
-      <%# --- DISTRIBUTOR SELECTION SECTION --- %>
-      <div class="mb-3">
-        <%= f.label :distributor_id, "Distributor", class: "form-label" %>
-        <% if @distributor %>
-           <%# If we already have the distributor context %>
-           <%= f.hidden_field :distributor_id, value: @distributor.id %>
-           <input type="text" class="form-control bg-light" value="<%= @distributor.name %>" readonly>
-        <% else %>
-          <%= f.collection_select :distributor_id, Distributor.order(:name), :id, :name, 
-              { prompt: "Select a Distributor" }, 
-              { class: "form-select", id: "distributor_select", required: true } %>
-        <% end %>
-      </div>
+<%# --- DISTRIBUTOR SELECTION SECTION --- %>
+<div class="mb-3">
+  <%= f.label :distributor_id, "Distributor", class: "form-label" %>
+  
+  <%# Check if we are in 'Distributor Context' (coming from Distributor show page) %>
+  <% if @sku.persisted? || @distributor %>
+     <%# 1. Provide the ID to the form submission via hidden field %>
+     <%= f.hidden_field :distributor_id, value: (@sku.distributor_id|| @distributor.id), id: "distributor_id_hidden" %>
+     
+     <%# 2. Show a disabled-looking, readonly input for the UI %>
+     <input type="text" 
+            class="form-control bg-light text-muted" 
+            value="<%= @sku.distributor&.name|| @distributor.name %>" 
+            readonly 
+            tabindex="-1"
+            style="pointer-events: none;">
+     <small class="text-muted">Locked to current distributor.</small>
+     
+  <% else %>
+    <%# No distributor context: Show the standard dropdown %>
+    <%= f.collection_select :distributor_id, Distributor.order(:name), :id, :name, 
+        { prompt: "Select a Distributor" }, 
+        { class: "form-select", id: "distributor_select", required: true } %>
+  <% end %>
+</div>
 
       <div class="mb-3">
         <%= f.label :sku_code, "SKU Code", class: "form-label" %>
@@ -108,7 +120,7 @@
         // Get names from either dropdowns or static variables
         const distName = distributorSelect ? (distributorSelect.options[distributorSelect.selectedIndex]?.text || "") : "<%= j @distributor&.name %>";
         const prodName = productSelect ? (productSelect.options[productSelect.selectedIndex]?.text || "") : "<%= j @product&.name %>";
-        
+        const distId = distributorSelect ? distributorSelect.value : "<%= @distributor&.id %>";
         // We only generate if BOTH names are available
         // Note: Removed codeField.value === "" so it updates on every change
         if (distName && distName !== "Select a Distributor" && prodName && prodName !== "Select a Product") {
@@ -126,12 +138,13 @@
           dPrefixArray.forEach((word) => {
             dPrefix += word.substring(0,2).toUpperCase();
           });
-
+          // const distId = "<%= @distributor&.id || 0  %>"
+          const suffix = currencyAddon.textContent
           // Generate the final code
           // We add a data-attribute to check if the user has manually typed something
           if (!codeField.dataset.userEdited) {
-            const randomSuffix = Math.floor(Math.random() * 900) + 100;
-            codeField.value = `${pPrefix}-${dPrefix}-${randomSuffix}`;
+            // const randomSuffix = Math.floor(Math.random() * 900) + 100;
+            codeField.value = `${pPrefix}-${dPrefix}-${suffix}-${distId}`;
           }
         }
       <% end %>

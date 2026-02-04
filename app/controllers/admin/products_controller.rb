@@ -1,10 +1,10 @@
 module Admin
   class ProductsController < ApplicationController
     before_action :require_admin
-    before_action :set_product, only: [:show, :edit, :update, :destroy]
+    before_action :set_product, only: [ :show, :edit, :update, :destroy ]
 
     def index
-      @products = Product.includes(:skus).all.order(:name)
+      @products = Product.includes(:skus).active.order(:name)
     end
 
     def show
@@ -41,8 +41,13 @@ module Admin
     end
 
     def destroy
-      @product.destroy
-      flash[:notice] = "Product deleted successfully."
+      @product = Product.find(params[:id])
+      if @product.soft_delete
+        flash[:notice] = "Product deleted successfully."
+      else
+        flash[:error] = "Product could not be archived."
+      end
+
       redirect_to admin_products_path
     end
 

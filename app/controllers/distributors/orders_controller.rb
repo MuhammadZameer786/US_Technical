@@ -14,7 +14,7 @@ module Distributors
     def new
   @order = Order.new
   # Eager load products to keep the page fast
-  @available_skus = current_user.distributor.skus.includes(:product)
+  @available_skus = load_active_skus
     end
 
 def create
@@ -39,8 +39,8 @@ def create
         end
       end
 
-      # If we reach here, something failed
-      @available_skus = @distributor.skus.includes(:product)
+    # If we reach here, something failed
+    @available_skus = load_active_skus
       flash.now[:alert] = "Failed to place order. Please check your quantities."
       render :new, status: :unprocessable_entity
 end
@@ -79,6 +79,13 @@ def process_order_items
           )
         end
       end
+end
+
+def load_active_skus
+      current_user.distributor.skus
+                  .active # Scope from Sku model
+                  .joins(:product).where(products: { discarded_at: nil }) # Ensure parent is active
+                  .includes(:product)
 end
   end
 end

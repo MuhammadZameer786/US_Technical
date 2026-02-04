@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_195514) do
   create_table "distributors", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "currency", default: "ZAR", null: false
@@ -40,7 +40,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["distributor_id"], name: "index_orders_on_distributor_id"
-    # Requirement Here
     t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -48,8 +47,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
   create_table "products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
+    t.datetime "discarded_at"
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_products_on_discarded_at"
   end
 
   create_table "skus", force: :cascade do |t|
@@ -62,6 +63,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_121655) do
     t.string "sku_code", null: false
     t.datetime "updated_at", null: false
     t.index ["distributor_id"], name: "index_skus_on_distributor_id"
+    t.index ["product_id", "distributor_id"], name: "index_skus_on_product_id_and_distributor_id", unique: true
     t.index ["product_id"], name: "index_skus_on_product_id"
     t.index ["sku_code"], name: "index_skus_on_sku_code", unique: true
   end

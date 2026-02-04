@@ -48,7 +48,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "bootstrap", "~> 5.3"
 gem "sassc-rails"
 
-gem 'htmlbeautifier'
+gem "htmlbeautifier"
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
@@ -70,6 +70,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # my own additions
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "pagy", "~> 9.3"
+  gem "ransack"
 end
 
 group :development do

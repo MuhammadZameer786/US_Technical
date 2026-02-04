@@ -20,10 +20,34 @@
         <%= f.text_field :name, class: "form-control", placeholder: "Enter distributor name", required: true %>
       </div>
 
+
       <div class="mb-3">
         <%= f.label :currency, class: "form-label" %>
         <%= f.text_field :currency, class: "form-control", placeholder: "Enter distributor currency", required: true %>
       </div>
+
+      <%# --- NESTED USER SECTION --- %>
+  <div class="card mb-4 border-info">
+    <div class="card-header bg-info text-white">User Account Details</div>
+    <div class="card-body">
+      <%= f.fields_for :users do |user_fields| %>
+      <%= user_fields.hidden_field :id %>
+        <%# Ensure the role is hidden and set to distributor %>
+        <%= user_fields.hidden_field :user_type, value: "distributor" %>
+      
+
+        <div class="mb-3">
+          <%= user_fields.label :email, class: "form-label" %>
+          <%= user_fields.email_field :email, class: "form-control", required: true %>
+        </div>
+
+        <div class="mb-3">
+          <%= user_fields.label :password, class: "form-label" %>
+          <%= user_fields.password_field :password, class: "form-control", required: true %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
       <div class="d-flex justify-content-between">
         <%= link_to "Cancel", admin_distributors_path, class: "btn btn-secondary" %>
