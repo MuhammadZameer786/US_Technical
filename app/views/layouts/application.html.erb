@@ -7,11 +7,17 @@
   <%= csp_meta_tag %>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <style>
     :root {
       --us-navy: #2c3e50;
+      --us-blue: #3498db;
       --us-light: #f8f9fa;
+      --us-success: #27ae60;
+      --us-warning: #f39c12;
+      --us-danger: #e74c3c;
     }
 
     body {
@@ -19,95 +25,320 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Change the standard Bootstrap 'bg-primary' to Union Swiss Navy */
-    .bg-primary { background-color: var(--us-navy) !important; }
-    .btn-primary { background-color: var(--us-navy); border-color: var(--us-navy); }
-    
-    /* Make the cards look modern */
-    .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem; }
-    
-    /* Add a nice hover to tables */
-    .table-hover tbody tr:hover { background-color: rgba(44, 62, 80, 0.05); }
+    /* Navbar improvements */
+    .navbar {
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
 
-    main { flex: 1; }
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+
+    /* Override Bootstrap primary */
+    .bg-primary { 
+      background-color: var(--us-navy) !important; 
+    }
+    
+    .btn-primary { 
+      background-color: var(--us-navy); 
+      border-color: var(--us-navy); 
+    }
+    
+    .btn-primary:hover { 
+      background-color: #1a252f; 
+      border-color: #1a252f; 
+    }
+
+    /* Card enhancements */
+    .card { 
+      border: none; 
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
+      border-radius: 0.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    /* Table improvements */
+    .table { 
+      background: white;
+    }
+    
+    .table thead th {
+      border-bottom: 2px solid var(--us-navy);
+      color: var(--us-navy);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .table-hover tbody tr:hover { 
+      background-color: rgba(44, 62, 80, 0.05);
+      cursor: pointer;
+    }
+
+    /* Form improvements */
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--us-blue);
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    /* Badge styles */
+    .badge {
+      padding: 0.4em 0.8em;
+      font-weight: 500;
+    }
+
+    /* Alert improvements */
+    .alert {
+      border: none;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+
+    /* Button enhancements */
+    .btn {
+      border-radius: 0.375rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,.15);
+    }
+
+    /* Page header style */
+    .page-header {
+      background: linear-gradient(135deg, var(--us-navy) 0%, #34495e 100%);
+      color: white;
+      padding: 2rem 0;
+      margin: -1rem -1rem 2rem -1rem;
+      border-radius: 0 0 1rem 1rem;
+    }
+
+    /* Stats card (dashboard) */
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+      border-left: 4px solid var(--us-blue);
+    }
+
+    .stat-card .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--us-navy);
+    }
+
+    .stat-card .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Loading spinner */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .spinner-overlay.active {
+      display: flex;
+    }
+
+    main { 
+      flex: 1; 
+    }
+
+    footer {
+      background: white;
+      border-top: 1px solid #dee2e6;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 1.5rem 0;
+      }
+      
+      .stat-card .stat-value {
+        font-size: 2rem;
+      }
+    }
   </style>
 </head>
 
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid">
-        <%= link_to "Union Swiss", root_path, class: "navbar-brand" %>
+<body>
+  <!-- Loading Overlay -->
+  <div class="spinner-overlay" id="loading-overlay">
+    <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <%= link_to root_path, class: "navbar-brand" do %>
+        <i class="bi bi-box-seam me-2"></i>
+        <strong>Union Swiss</strong>
+      <% end %>
+      
+      <% if logged_in? %>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
         
-        <% if logged_in? %>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <% if current_user.admin? %>
+              <li class="nav-item">
+                <%= link_to admin_dashboard_path, class: "nav-link" do %>
+                  <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to admin_distributors_path, class: "nav-link" do %>
+                  <i class="bi bi-building me-1"></i> Distributors
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to admin_products_path, class: "nav-link" do %>
+                  <i class="bi bi-box me-1"></i> Products
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to admin_users_path, class: "nav-link" do %>
+                  <i class="bi bi-people me-1"></i> Users
+                <% end %>
+              </li>
+            <% elsif current_user.distributor? %>
+              <li class="nav-item">
+                <%= link_to distributors_dashboard_path, class: "nav-link" do %>
+                  <i class="bi bi-house-door me-1"></i> Dashboard
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to distributors_orders_path, class: "nav-link" do %>
+                  <i class="bi bi-list-ul me-1"></i> My Orders
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to new_distributors_order_path, class: "nav-link" do %>
+                  <i class="bi bi-cart-plus me-1"></i> New Order
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
           
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-              <% if current_user.admin? %>
-                <li class="nav-item">
-                  <%= link_to "Dashboard", admin_dashboard_path, class: "nav-link" %>
+          <div class="d-flex align-items-center">
+            <div class="dropdown">
+              <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle me-1"></i>
+                <%= current_user.email %>
+                <span class="badge bg-light text-primary ms-2">
+                  <%= current_user.user_type.titleize %>
+                </span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <span class="dropdown-item-text small text-muted">
+                    <% if current_user.distributor? %>
+                      <i class="bi bi-building me-1"></i>
+                      <%= current_user.distributor.name %>
+                    <% end %>
+                  </span>
                 </li>
-                <li class="nav-item">
-                  <%= link_to "Distributors", admin_distributors_path, class: "nav-link" %>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <%= button_to logout_path, method: :delete, class: "dropdown-item text-danger" do %>
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                  <% end %>
                 </li>
-                <li class="nav-item">
-                  <%= link_to "Products", admin_products_path, class: "nav-link" %>
-                </li>
-                <li class="nav-item">
-                  <%= link_to "Users", admin_users_path, class: "nav-link" %>
-                </li>
-              <% elsif current_user.distributor? %>
-                <li class="nav-item">
-                  <%= link_to "Dashboard", distributors_dashboard_path, class: "nav-link" %>
-                </li>
-                <li class="nav-item">
-                  <%= link_to "My Orders", distributors_orders_path, class: "nav-link" %>
-                </li>
-                <li class="nav-item">
-                  <%= link_to "New Order", new_distributors_order_path, class: "nav-link" %>
-                </li>
-              <% end %>
-            </ul>
-            
-            <div class="d-flex align-items-center text-white">
-              <span class="me-3"><%= current_user.email %></span>
-              <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-light btn-sm" %>
+              </ul>
             </div>
           </div>
-        <% end %>
+        </div>
+      <% end %>
+    </div>
+  </nav>
+
+  <main class="py-4">
+    <div class="container">
+      <% if flash[:notice] %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle me-2"></i>
+          <%= flash[:notice] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% end %>
+
+      <% if flash[:alert] %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <%= flash[:alert] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </div>
+  </main>
+
+  <footer class="py-4 mt-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6 text-center text-md-start">
+          <small class="text-muted">
+            &copy; <%= Time.current.year %> Union Swiss. All rights reserved.
+          </small>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <small class="text-muted">
+            <i class="bi bi-shield-check me-1"></i>
+            Secure Bio-Oil Distribution System
+          </small>
+        </div>
       </div>
-    </nav>
+    </div>
+  </footer>
 
-    <main class="py-4">
-      <div class="container">
-        <% if flash[:notice] %>
-          <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <%= flash[:notice] %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-        <% end %>
-
-        <% if flash[:alert] %>
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= flash[:alert] %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-        <% end %>
-
-        <%= yield %>
-      </div>
-    </main>
-
-    <footer class="bg-light py-3 mt-5">
-      <div class="container text-center text-muted">
-        <small>&copy; <%= Time.current.year %> Union Swiss. All rights reserved.</small>
-      </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Show loading overlay on form submissions
+    document.addEventListener('DOMContentLoaded', function() {
+      const forms = document.querySelectorAll('form');
+      const overlay = document.getElementById('loading-overlay');
+      
+      forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          // Don't show for delete confirmations that are cancelled
+          if (form.querySelector('[data-confirm]')) {
+            return;
+          }
+          overlay.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
 </html>

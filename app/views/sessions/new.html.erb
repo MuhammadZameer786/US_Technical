@@ -1,32 +1,75 @@
-<div class="row justify-content-center mt-5">
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
   <div class="col-md-5">
-    <div class="card shadow">
+    <div class="text-center mb-4">
+      <i class="bi bi-box-seam display-1 text-primary"></i>
+      <h2 class="mt-3">Union Swiss</h2>
+      <p class="text-muted">Order Management System</p>
+    </div>
+
+    <div class="card shadow-lg border-0">
       <div class="card-body p-5">
-        <h2 class="text-center mb-4">Login</h2>
+        <h3 class="text-center mb-4">Sign In</h3>
         
         <%= form_with url: login_path, local: true do |f| %>
-          <div class="mb-3">
-            <%= f.label :email, class: "form-label" %>
-            <%= f.email_field :email, class: "form-control", placeholder: "Enter your email", required: true, autofocus: true %>
+          <div class="mb-4">
+            <%= f.label :email, class: "form-label fw-bold" do %>
+              <i class="bi bi-envelope me-1"></i>Email Address
+            <% end %>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-person"></i>
+              </span>
+              <%= f.email_field :email, 
+                  class: "form-control form-control-lg", 
+                  placeholder: "you@example.com", 
+                  required: true, 
+                  autofocus: true %>
+            </div>
           </div>
 
           <div class="mb-4">
-            <%= f.label :password, class: "form-label" %>
-            <%= f.password_field :password, class: "form-control", placeholder: "Enter your password", required: true %>
+            <%= f.label :password, class: "form-label fw-bold" do %>
+              <i class="bi bi-lock me-1"></i>Password
+            <% end %>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-key"></i>
+              </span>
+              <%= f.password_field :password, 
+                  class: "form-control form-control-lg", 
+                  placeholder: "Enter your password", 
+                  required: true %>
+            </div>
           </div>
 
-          <%= f.submit "Login", class: "btn btn-primary w-100" %>
+          <%= f.submit "Sign In", class: "btn btn-primary btn-lg w-100" %>
         <% end %>
 
         <hr class="my-4">
         
-        <div class="text-muted small">
-          <p class="mb-1"><strong>Demo Credentials:</strong></p>
-          <p class="mb-1">Admin: admin@unionswiss.com / admin123</p>
-          <p class="mb-1">Distributor 1: orders@capebeauty.co.za / cape123</p>
-          <p class="mb-0">Distributor 2: purchasing@wellnessza.com / wellness123</p>
+        <div class="bg-light p-3 rounded">
+          <h6 class="mb-3">
+            <i class="bi bi-info-circle me-1"></i>Demo Credentials
+          </h6>
+          <div class="small">
+            <div class="mb-2">
+              <strong class="text-primary">Admin:</strong>
+              <br><code>admin@unionswiss.com</code> / <code>password</code>
+            </div>
+            <div class="mb-2">
+              <strong class="text-success">Distributor:</strong>
+              <br><code>user@distributor.com</code> / <code>password</code>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <small class="text-muted">
+        <i class="bi bi-shield-check me-1"></i>
+        Secure Bio-Oil Distribution Platform
+      </small>
     </div>
   </div>
 </div>

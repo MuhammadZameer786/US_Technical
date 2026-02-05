@@ -1,87 +1,208 @@
-<h1 class="mb-4">Place New Order</h1>
+<div class="row mb-4">
+  <div class="col-12">
+    <h1 class="mb-2">
+      <i class="bi bi-cart-plus text-primary"></i> Place New Order
+    </h1>
+    <p class="text-muted">Select products and quantities to create your order</p>
+  </div>
+</div>
 
-<%= form_with model: @order, url: distributors_orders_path, local: true do |f| %>
-  <%# --- SECTION 1: ORDER DETAILS --- %>
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">Order Details</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= f.label :required_delivery_date, "Required Delivery Date", class: "form-label" %>
-            <%= f.date_field :required_delivery_date, class: "form-control", min: Date.tomorrow, required: true %>
-            <small class="form-text text-muted">Minimum delivery date is tomorrow.</small>
+<%= form_with model: @order, url: distributors_orders_path, local: true, id: "order-form" do |f| %>
+  <div class="row">
+    <!-- Main Order Section -->
+    <div class="col-lg-8">
+      <!-- Order Details Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-calendar-event me-2"></i>Order Details
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="mb-3">
+                <%= f.label :required_delivery_date, class: "form-label fw-bold" do %>
+                  <i class="bi bi-truck me-1"></i> Required Delivery Date
+                <% end %>
+                <%= f.date_field :required_delivery_date, 
+                    class: "form-control form-control-lg", 
+                    min: Date.tomorrow, 
+                    required: true %>
+                <div class="form-text">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Delivery date must be at least one day in the future
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <%# --- SECTION 2: PRODUCT SELECTION --- %>
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-secondary text-white">
-      <h5 class="mb-0">Select Products</h5>
-    </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>SKU Code</th>
-              <th>Unit Price</th>
-              <th width="180">Quantity (Pallets)</th>
-              <th>Total Value</th>
-            </tr>
-          </thead>
-          <tbody id="order-items">
-            <%# Grouping by product works directly on the SKU objects now %>
-            <% @available_skus.group_by(&:product).each do |product, skus| %>
-              <tr class="table-light">
-                <td colspan="5"><strong><%= product.name %></strong></td>
-              </tr>
-              <% skus.each do |sku| %>
-                <tr class="order-item-row" data-price="<%= sku.price %>" data-currency="<%= sku.currency %>">
-                  <td><%= sku.name %></td>
-                  <td><code><%= sku.sku_code %></code></td>
-                  <td class="unit-price">
-                    <%= sku.currency %> <%= number_with_precision(sku.price, precision: 2) %>
-                  </td>
-                  <td>
-                    <div class="input-group">
-                      <%= number_field_tag "order[items][#{sku.id}][quantity]", 0, 
-                          min: 0, 
-                          class: "form-control quantity-input", 
-                          data: { sku_id: sku.id } %>
-                      <span class="input-group-text">Plt</span>
-                    </div>
-                    <small class="text-muted">1 Plt = 4,800 units</small>
-                  </td>
-                  <td class="item-total fw-bold text-primary">
-                    <%= sku.currency %> 0.00
-                  </td>
+      <!-- Products Selection Card -->
+      <div class="card mb-4">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-box-seam me-2 text-primary"></i>Select Products
+            </h5>
+            <span class="badge bg-primary" id="selected-items-badge">0 items selected</span>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th width="30%">
+                    <i class="bi bi-tag me-1"></i>Product
+                  </th>
+                  <th width="15%">
+                    <i class="bi bi-upc me-1"></i>SKU Code
+                  </th>
+                  <th width="15%" class="text-end">
+                    <i class="bi bi-currency-dollar me-1"></i>Unit Price
+                  </th>
+                  <th width="20%">
+                    <i class="bi bi-box me-1"></i>Quantity (Pallets)
+                  </th>
+                  <th width="20%" class="text-end">
+                    <i class="bi bi-calculator me-1"></i>Line Total
+                  </th>
                 </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-          <tfoot>
-            <tr class="table-primary">
-              <th colspan="4" class="text-end align-middle">Grand Total:</th>
-              <th id="grand-total" class="fs-4">
-                <%= @available_skus.first&.currency || 'ZAR' %> 0.00
-              </th>
-            </tr>
-          </tfoot>
-        </table>
+              </thead>
+              <tbody id="order-items">
+                <% @available_skus.group_by(&:product).each do |product, skus| %>
+                  <tr class="table-secondary">
+                    <td colspan="5">
+                      <strong class="text-uppercase">
+                        <i class="bi bi-box-fill me-2"></i><%= product.name %>
+                      </strong>
+                    </td>
+                  </tr>
+                  <% skus.each do |sku| %>
+                    <tr class="order-item-row" data-price="<%= sku.price %>" data-currency="<%= sku.currency %>">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="bg-light rounded p-2 me-2">
+                            <i class="bi bi-box text-primary"></i>
+                          </div>
+                          <div>
+                            <%= sku.name %>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <code class="bg-light px-2 py-1 rounded"><%= sku.sku_code %></code>
+                      </td>
+                      <td class="text-end">
+                        <strong class="text-primary">
+                          <%= sku.currency %> <%= number_with_precision(sku.price, precision: 2, delimiter: ',') %>
+                        </strong>
+                        <small class="d-block text-muted">(1 pallet = 4800 units)</small>
+                      </td>
+                      <td>
+                        <div class="input-group input-group-sm">
+                          <button type="button" class="btn btn-outline-secondary decrement-btn" tabindex="-1">
+                            <i class="bi bi-dash"></i>
+                          </button>
+                          <%= number_field_tag "order[items][#{sku.id}][quantity]", 0, 
+                              min: 0, 
+                              class: "form-control text-center quantity-input fw-bold", 
+                              data: { sku_id: sku.id },
+                              style: "max-width: 80px;" %>
+                          <button type="button" class="btn btn-outline-secondary increment-btn" tabindex="-1">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                        <small class="text-muted d-block mt-1 units-display">
+                          <i class="bi bi-grid-3x3 me-1"></i>0 units
+                        </small>
+                      </td>
+                      <td class="text-end">
+                        <div class="item-total fw-bold text-success fs-5">
+                          <%= sku.currency %> 0.00
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-between mb-5">
+        <%= link_to distributors_dashboard_path, class: "btn btn-outline-secondary btn-lg" do %>
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        <% end %>
+        <%= f.submit class: "btn btn-success btn-lg px-5", id: "submit-order", disabled: true do %>
+          <i class="bi bi-check-circle me-2"></i>Place Order
+        <% end %>
       </div>
     </div>
-  </div>
 
-  <div class="d-flex justify-content-between mb-5">
-    <%= link_to "Cancel", distributors_dashboard_path, class: "btn btn-outline-secondary" %>
-    <%= f.submit "Place Order", class: "btn btn-success btn-lg", id: "submit-order", disabled: true %>
+    <!-- Order Summary Sidebar -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-receipt me-2"></i>Order Summary
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+            <span class="text-muted">
+              <i class="bi bi-box me-1"></i>Total Items:
+            </span>
+            <strong id="total-items" class="fs-5">0</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+            <span class="text-muted">
+              <i class="bi bi-stack me-1"></i>Total Pallets:
+            </span>
+            <strong id="total-pallets" class="fs-5">0</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+            <span class="text-muted">
+              <i class="bi bi-grid-3x3 me-1"></i>Total Units:
+            </span>
+            <strong id="total-units" class="fs-5">0</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Grand Total:</h5>
+            <h3 class="text-success mb-0" id="grand-total">
+              <%= @available_skus.first&.currency || 'ZAR' %> 0.00
+            </h3>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>Note:</strong> 1 pallet = 4,800 units
+          </small>
+        </div>
+      </div>
+
+      <!-- Help Card -->
+      <div class="card mt-3 border-info">
+        <div class="card-header bg-info bg-opacity-10 border-info">
+          <h6 class="mb-0">
+            <i class="bi bi-question-circle me-1"></i>Need Help?
+          </h6>
+        </div>
+        <div class="card-body">
+          <ul class="small mb-0 ps-3">
+            <li class="mb-2">Each pallet contains 4,800 units</li>
+            <li class="mb-2">Minimum order is 1 pallet per product</li>
+            <li class="mb-2">Prices shown are in your local currency</li>
+            <li class="mb-0">Delivery date must be at least 1 day ahead</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 <% end %>
 
@@ -90,36 +211,83 @@
     const quantityInputs = document.querySelectorAll('.quantity-input');
     const grandTotalElement = document.getElementById('grand-total');
     const submitButton = document.getElementById('submit-order');
+    const selectedItemsBadge = document.getElementById('selected-items-badge');
+
+    // Increment/Decrement buttons
+    document.querySelectorAll('.increment-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('.quantity-input');
+        input.value = parseInt(input.value) + 1;
+        updateTotals();
+      });
+    });
+
+    document.querySelectorAll('.decrement-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('.quantity-input');
+        if (parseInt(input.value) > 0) {
+          input.value = parseInt(input.value) - 1;
+          updateTotals();
+        }
+      });
+    });
 
     function updateTotals() {
       let grandTotal = 0;
       let hasItems = false;
-      let currencySymbol = "ZAR"; // Default
+      let selectedItemsCount = 0;
+      let totalPallets = 0;
+      let totalUnits = 0;
+      let currencySymbol = "<%= @available_skus.first&.currency || 'ZAR' %>";
 
       document.querySelectorAll('.order-item-row').forEach(function(row) {
         const quantityInput = row.querySelector('.quantity-input');
         const quantity = parseInt(quantityInput.value) || 0;
         const price = parseFloat(row.dataset.price);
         const currency = row.dataset.currency;
-        currencySymbol = currency; // Store for the grand total
+        currencySymbol = currency;
 
         const unitsPerPallet = <%= OrderItem::UNITS_PER_PALLET %>;
-        const total = unitsPerPallet * quantity * price;
+        const units = unitsPerPallet * quantity;
+        const total = units * price;
 
-        // Display individual row total
+        // Update units display
+        row.querySelector('.units-display').innerHTML = `<i class="bi bi-grid-3x3 me-1"></i>${units.toLocaleString()} units`;
+        
+        // Update row total
         row.querySelector('.item-total').textContent = `${currency} ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         
         if (quantity > 0) {
           hasItems = true;
+          selectedItemsCount++;
+          totalPallets += quantity;
+          totalUnits += units;
           grandTotal += total;
+          row.classList.add('table-success');
+          row.classList.add('table-active');
+        } else {
+          row.classList.remove('table-success');
+          row.classList.remove('table-active');
         }
       });
 
-      // Update Grand Total
+      // Update summary
       grandTotalElement.textContent = `${currencySymbol} ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('total-items').textContent = selectedItemsCount;
+      document.getElementById('total-pallets').textContent = totalPallets;
+      document.getElementById('total-units').textContent = totalUnits.toLocaleString();
+      selectedItemsBadge.textContent = `${selectedItemsCount} item${selectedItemsCount !== 1 ? 's' : ''} selected`;
       
       // Toggle submit button
       submitButton.disabled = !hasItems;
+      
+      if (hasItems) {
+        submitButton.classList.remove('btn-secondary');
+        submitButton.classList.add('btn-success');
+      } else {
+        submitButton.classList.remove('btn-success');
+        submitButton.classList.add('btn-secondary');
+      }
     }
 
     quantityInputs.forEach(function(input) {

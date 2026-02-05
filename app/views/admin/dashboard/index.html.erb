@@ -1,92 +1,190 @@
-<h1 class="mb-4">Admin Dashboard</h1>
-
 <div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h5 class="card-title">Distributors</h5>
-        <p class="display-4"><%= @distributors_count %></p>
-        <%= link_to "Manage", admin_distributors_path, class: "btn btn-primary" %>
+  <div class="col-12">
+    <h1 class="mb-2">
+      <i class="bi bi-speedometer2 text-primary"></i> Admin Dashboard
+    </h1>
+    <p class="text-muted">Overview of your Union Swiss distribution system</p>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+  <div class="col-md-4 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body stat-card" style="border-left-color: #3498db;">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="stat-label">Distributors</div>
+            <div class="stat-value"><%= @distributors_count %></div>
+          </div>
+          <div class="bg-primary bg-opacity-10 rounded p-3">
+            <i class="bi bi-building fs-1 text-primary"></i>
+          </div>
+        </div>
+        <%= link_to admin_distributors_path, class: "btn btn-primary w-100" do %>
+          <i class="bi bi-arrow-right me-1"></i>Manage Distributors
+        <% end %>
       </div>
     </div>
   </div>
-  
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h5 class="card-title">Products</h5>
-        <p class="display-4"><%= @products_count %></p>
-        <%= link_to "Manage", admin_products_path, class: "btn btn-primary" %>
+
+  <div class="col-md-4 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body stat-card" style="border-left-color: #27ae60;">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="stat-label">Products</div>
+            <div class="stat-value"><%= @products_count %></div>
+          </div>
+          <div class="bg-success bg-opacity-10 rounded p-3">
+            <i class="bi bi-box-seam fs-1 text-success"></i>
+          </div>
+        </div>
+        <%= link_to admin_products_path, class: "btn btn-success w-100" do %>
+          <i class="bi bi-arrow-right me-1"></i>Manage Products
+        <% end %>
       </div>
     </div>
   </div>
-  
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h5 class="card-title">Total Orders</h5>
-        <p class="display-4"><%= @orders_count %></p>
+
+  <div class="col-md-4 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body stat-card" style="border-left-color: #f39c12;">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value"><%= @orders_count %></div>
+          </div>
+          <div class="bg-warning bg-opacity-10 rounded p-3">
+            <i class="bi bi-cart-check fs-1 text-warning"></i>
+          </div>
+        </div>
+        <button class="btn btn-warning w-100" disabled>
+          <i class="bi bi-graph-up me-1"></i>View Analytics
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card mb-4 bg-light">
+<!-- Search Section -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header bg-white border-bottom">
+    <h5 class="mb-0">
+      <i class="bi bi-search me-2"></i>Search Orders
+    </h5>
+  </div>
   <div class="card-body">
     <%= search_form_for @q, url: admin_dashboard_path, method: :get, class: "row g-3" do |f| %>
-      <div class="col-md-4">
-        <%= f.label :order_number_cont, "Search Order Number", class: "form-label" %>
-        <%= f.search_field :order_number_cont, class: "form-control", placeholder: "e.g. ORD-123" %>
+      <div class="col-md-5">
+        <%= f.label :order_number_cont, class: "form-label fw-bold" do %>
+          <i class="bi bi-hash me-1"></i>Order Number
+        <% end %>
+        <%= f.search_field :order_number_cont, 
+            class: "form-control", 
+            placeholder: "e.g., ORD-2025-001" %>
       </div>
       
-      <div class="col-md-4">
-        <%= f.label :distributor_name_cont, "Search Distributor", class: "form-label" %>
-        <%= f.search_field :distributor_name_cont, class: "form-control", placeholder: "Company name..." %>
+      <div class="col-md-5">
+        <%= f.label :distributor_name_cont, class: "form-label fw-bold" do %>
+          <i class="bi bi-building me-1"></i>Distributor Name
+        <% end %>
+        <%= f.search_field :distributor_name_cont, 
+            class: "form-control", 
+            placeholder: "Company name..." %>
       </div>
 
-      <div class="col-md-4 d-flex align-items-end">
-        <%= f.submit "Search", class: "btn btn-primary me-2" %>
-        <%= link_to "Clear", admin_dashboard_path, class: "btn btn-outline-secondary" %>
+      <div class="col-md-2 d-flex align-items-end">
+        <div class="btn-group w-100" role="group">
+          <%= f.submit "Search", class: "btn btn-primary" %>
+          <%= link_to admin_dashboard_path, class: "btn btn-outline-secondary" do %>
+            <i class="bi bi-x"></i>
+          <% end %>
+        </div>
       </div>
     <% end %>
   </div>
 </div>
 
-<h3 class="mb-3">Recent Orders</h3>
-<h3 class="mb-3"><%= @recent_orders.count %></h3>
-<% if @recent_orders.any? %>
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Order Number</th>
-          <th>Distributor</th>
-          <th>User</th>
-          <th>Delivery Date</th>
-          <th>Total Amount</th>
-          <th>Created</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @recent_orders.each do |order| %>
-          <tr>
-            <td><%= order.order_number %></td>
-            <td><%= order.distributor.name %></td>
-            <td><%= order.user.email %></td>
-            <td><%= order.required_delivery_date.strftime('%Y-%m-%d') %></td>
-            <td><%= order.order_items.first.sku.currency%> <%= number_with_precision(order.total_amount, precision: 2, delimiter: ',') %></td>
-            <td><%= order.created_at.strftime('%Y-%m-%d %H:%M') %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+<!-- Recent Orders Table -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white border-bottom">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-clock-history me-2"></i>Recent Orders
+      </h5>
+      <span class="badge bg-primary"><%= @recent_orders.count %> orders</span>
+    </div>
   </div>
+  <div class="card-body p-0">
+    <% if @recent_orders.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>
+                <i class="bi bi-hash me-1"></i>Order Number
+              </th>
+              <th>
+                <i class="bi bi-building me-1"></i>Distributor
+              </th>
+              <th>
+                <i class="bi bi-person me-1"></i>User
+              </th>
+              <th>
+                <i class="bi bi-calendar me-1"></i>Delivery Date
+              </th>
+              <th class="text-end">
+                <i class="bi bi-currency-dollar me-1"></i>Total Amount
+              </th>
+              <th>
+                <i class="bi bi-clock me-1"></i>Created
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recent_orders.each do |order| %>
+              <tr>
+                <td>
+                  <strong class="text-primary"><%= order.order_number %></strong>
+                </td>
+                <td><%= order.distributor.name %></td>
+                <td>
+                  <small class="text-muted"><%= order.user.email %></small>
+                </td>
+                <td>
+                  <span class="badge bg-info">
+                    <%= order.required_delivery_date.strftime('%d %b %Y') %>
+                  </span>
+                </td>
+                <td class="text-end">
+                  <strong class="text-success">
+                    <%= order.order_items.first.sku.currency %> 
+                    <%= number_with_precision(order.total_amount, precision: 2, delimiter: ',') %>
+                  </strong>
+                </td>
+                <td>
+                  <small class="text-muted">
+                    <%= time_ago_in_words(order.created_at) %> ago
+                  </small>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
 
-
-<%# Add the pagination links here %>
-<div class="d-flex justify-content-center mt-4">
-  <%== pagy_bootstrap_nav(@pagy) %>
+      <!-- Pagination -->
+      <div class="card-footer bg-light">
+        <div class="d-flex justify-content-center">
+          <%== pagy_bootstrap_nav(@pagy) %>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="text-muted mt-3">No orders found matching your criteria.</p>
+      </div>
+    <% end %>
+  </div>
 </div>
-<% else %>
-  <p class="text-muted">No orders yet.</p>
-<% end %>

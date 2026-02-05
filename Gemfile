@@ -76,6 +76,8 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "pagy", "~> 9.3"
   gem "ransack"
+  gem "prawn"
+gem "prawn-table"
 end
 
 group :development do

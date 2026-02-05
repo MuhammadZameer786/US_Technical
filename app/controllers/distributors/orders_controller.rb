@@ -7,9 +7,20 @@ module Distributors
       @orders = current_user.distributor.orders.includes(:order_items).order(created_at: :desc)
     end
 
-    def show
-      @order_items = @order.order_items.includes(sku: :product)
+def show
+  @order_items = @order.order_items.includes(sku: :product)
+
+  respond_to do |format|
+    format.html
+    format.pdf do
+      pdf = OrderPdfGenerator.new(@order).generate
+      send_data pdf,
+                filename: "order_#{@order.order_number}.pdf",
+                type: "application/pdf",
+                disposition: "inline"  # Use 'attachment' to force download
     end
+  end
+end
 
     def new
   @order = Order.new

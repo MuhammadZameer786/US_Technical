@@ -8,7 +8,23 @@ class Order < ApplicationRecord
   validates :total_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validate :delivery_date_cannot_be_in_the_past
 
+
+  enum :status, {
+    pending: 0,
+    confirmed: 1,
+    processing: 2,
+    shipped: 3,
+    delivered: 4,
+    cancelled: 5
+  }, default: :pending
+
+
   before_validation :generate_order_number, on: :create
+
+
+
+
+
 
   def calculate_total
     self.total_amount = order_items.sum(&:total_price)
