@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_04_195514) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_04_200751) do
   create_table "distributors", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "currency", default: "ZAR", null: false
@@ -56,12 +56,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_195514) do
   create_table "skus", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "currency"
+    t.datetime "discarded_at"
     t.integer "distributor_id", null: false
     t.string "name", null: false
     t.decimal "price"
     t.integer "product_id", null: false
     t.string "sku_code", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_skus_on_discarded_at"
     t.index ["distributor_id"], name: "index_skus_on_distributor_id"
     t.index ["product_id", "distributor_id"], name: "index_skus_on_product_id_and_distributor_id", unique: true
     t.index ["product_id"], name: "index_skus_on_product_id"
