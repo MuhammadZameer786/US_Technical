@@ -9,6 +9,10 @@ belongs_to :distributor, inverse_of: :users, optional: true
 
 validates :distributor, presence: true, unless: -> { user_type == "admin" }
 
+
+  def self.ransackable_attributes(auth_object = nil)
+    [ "email" ]
+  end
   def admin?
     user_type == "admin"
   end

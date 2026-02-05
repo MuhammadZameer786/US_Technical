@@ -57,16 +57,22 @@
 <% if @recent_orders.any? %>
   <div class="table-responsive">
     <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Order Number</th>
-          <th>Distributor</th>
-          <th>User</th>
-          <th>Delivery Date</th>
-          <th>Total Amount</th>
-          <th>Created</th>
-        </tr>
-      </thead>
+<thead>
+  <tr>
+    <%# 1. Simple Column Sort %>
+    <th><%= sort_link(@q, :order_number, "Order #") %></th>
+
+    <%# 2. Association Sort (Sorting by Distributor Name) %>
+    <th><%= sort_link(@q, :distributor_name, "Distributor") %></th>
+
+    <%# 3. Association Sort (Sorting by User Email) %>
+    <th><%= sort_link(@q, :user_email, "User") %></th>
+
+    <th><%= sort_link(@q, :required_delivery_date, "Delivery Date") %></th>
+    <th><%= sort_link(@q, :total_amount, "Total Amount") %></th>
+    <th><%= sort_link(@q, :created_at, "Created") %></th>
+  </tr>
+</thead>
       <tbody>
         <% @recent_orders.each do |order| %>
           <tr>

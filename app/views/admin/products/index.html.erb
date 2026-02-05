@@ -1,8 +1,7 @@
 <h1 class="mb-4">Products</h1>
 
 <div class="mb-3">
-  <%= link_to "Add New Product", new_admin_product_path, class: "btn btn-primary" %>
-</div>
+<%= link_to "Add New Product", new_admin_product_path(return_to: admin_dashboard_path), class: "btn btn-primary" %></div>
 
 
 <% if params[:distributor_id] %>

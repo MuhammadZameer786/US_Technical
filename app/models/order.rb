@@ -15,7 +15,7 @@ class Order < ApplicationRecord
   end
   # Allow searching these specific columns
   def self.ransackable_attributes(auth_object = nil)
-    [ "order_number", "total_amount", "required_delivery_date", "created_at" ]
+    [ "order_number", "total_amount", "required_delivery_date", "created_at", "user" ]
   end
 
   # Allow searching across these relationships
