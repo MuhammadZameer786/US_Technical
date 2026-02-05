@@ -55,7 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_04_200751) do
 
   create_table "skus", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "currency"
+    t.string "currency", null: false
     t.datetime "discarded_at"
     t.integer "distributor_id", null: false
     t.string "name", null: false
