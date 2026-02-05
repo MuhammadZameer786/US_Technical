@@ -5,6 +5,13 @@ module Admin
 
     def index
       @products = Product.includes(:skus).active.order(:name)
+      if params[:distributor_id]
+        @distributor = Distributor.find(params[:distributor_id])
+        existing_product_ids = @distributor.skus.pluck(:product_id)
+
+        # Exclude those products from the list
+        @products = @products.where.not(id: existing_product_ids)
+      end
     end
 
     def show

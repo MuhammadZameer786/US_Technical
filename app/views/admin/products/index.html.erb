@@ -24,6 +24,7 @@
       </thead>
       <tbody>
         <% @products.each do |product| %>
+
           <tr>
             <td><strong><%= product.name %></strong></td>
             <td><%= truncate(product.description, length: 100) %></td>
@@ -55,5 +56,13 @@
     </table>
   </div>
 <% else %>
+  <% if params[:distributor_id] %>
+  <div class="text-center py-5">
+    <p class="text-muted">
+      <%= params[:distributor_id] ? "This distributor already has all available products assigned." : "No products yet." %>
+    </p>
+  </div>
+  <%else%>
   <p class="text-muted">No products yet.</p>
+  <%end%>
 <% end %>
