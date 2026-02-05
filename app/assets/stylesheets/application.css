@@ -8,3 +8,15 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+:root {
+  --primary-brand: #2c3e50;    /* Professional Navy */
+  --secondary-brand: #18bc9c;  /* Clean Teal */
+  --bg-light: #f8f9fa;
+  --border-color: #dee2e6;
+}
+
+body {
+  background-color: var(--bg-light);
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #333;
+}
