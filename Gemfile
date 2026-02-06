@@ -78,6 +78,7 @@ group :development, :test do
   gem "ransack"
   gem "prawn"
 gem "prawn-table"
+gem "letter_opener", group: :development
 end
 
 group :development do

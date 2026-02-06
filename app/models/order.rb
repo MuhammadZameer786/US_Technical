@@ -20,7 +20,7 @@ class Order < ApplicationRecord
 
 
   before_validation :generate_order_number, on: :create
-
+after_commit :send_confirmation_email, on: :create
 
 
 
@@ -55,6 +55,10 @@ def calculate_total_amount!
 
     # 2. Update the total_amount column in the database
     update!(total_amount: new_total)
+end
+def send_confirmation_email
+    # .deliver_later puts the email into a background queue
+    OrderMailer.order_confirmation(self.reload).deliver_now
 end
   end
 end

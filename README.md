@@ -54,7 +54,7 @@ bundle install
 
 #### 2.2. Database Setup
 
-Create the database, run migrations, and populate seed data:
+Create the database, run migrations:
 ```bash
 rails db:setup
 rails db:migrate
@@ -82,6 +82,7 @@ Look for a line like:
 IPv4 Address........................: 192.168.1.7
 ```
 
+
 Then visit `http://192.168.1.7:3000` in your browser (note: use `http://`, not `https://`).
 
 ## 🔑 Login Credentials (Seed Data)
@@ -92,13 +93,15 @@ The `db:seed` file populates the database with the following test accounts:
 |:-----|:------|:---------|
 | **Admin** | `admin@unionswiss.com` | `admin123` |
 | **Distributor 1** | `orders@capebeauty.co.za` | `cape123` |
-| **Distributor 2** | `purchasing@wellnessza.com ` | `wellness123` |
+| **Distributor 2** | `purchasing@wellnessza.com ` | `wellness123` 
 
 ## 🚀 Additional Features Implemented
 
-* **Soft Deletes:** Products are archived rather than deleted to preserve historical order integrity
-* **Advanced Filtering:** Admin dashboard includes Ransack search and Pagy pagination
+* **Soft Deletes:** Products are archived rather than deleted to preserve historical order integrity. Product deletion soft deletes assigned skus as well
+
+* **Filtering:** Admin dashboard includes Ransack search and Pagy pagination
 * **Unit Testing:** Core business logic (pricing, status transitions) is verified with RSpec
+* **PDF Downloading** Orders can now be converted into a pdf and downloaded.
 
 ## ✅ Running Tests
 
