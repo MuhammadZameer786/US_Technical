@@ -1,0 +1,314 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <h1 class="mb-2">
+      <i class="bi bi-graph-up text-primary"></i> Analytics Dashboard
+    </h1>
+    <p class="text-muted">Insights and performance metrics</p>
+  </div>
+</div>
+
+<!-- Date Range Filter -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <%= form_with url: admin_analytics_path, method: :get, class: "row g-3 align-items-end" do |f| %>
+      <div class="col-md-4">
+        <%= label_tag :start_date, "Start Date", class: "form-label fw-bold" %>
+        <%= date_field_tag :start_date, @start_date, class: "form-control" %>
+      </div>
+      <div class="col-md-4">
+        <%= label_tag :end_date, "End Date", class: "form-label fw-bold" %>
+        <%= date_field_tag :end_date, @end_date, class: "form-control" %>
+      </div>
+      <div class="col-md-4">
+        <%= submit_tag "Update Report", class: "btn btn-primary w-100" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <i class="bi bi-currency-dollar display-4 text-success mb-3"></i>
+        <h6 class="text-muted text-uppercase mb-2">Total Revenue</h6>
+        <h2 class="text-success mb-0">
+          ZAR <%= number_with_precision(@total_revenue, precision: 2, delimiter: ',') %>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <i class="bi bi-cart-check display-4 text-primary mb-3"></i>
+        <h6 class="text-muted text-uppercase mb-2">Total Orders</h6>
+        <h2 class="text-primary mb-0"><%= @total_orders %></h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <i class="bi bi-calculator display-4 text-warning mb-3"></i>
+        <h6 class="text-muted text-uppercase mb-2">Avg Order Value</h6>
+        <h2 class="text-warning mb-0">
+          ZAR <%= number_with_precision(@average_order_value, precision: 2, delimiter: ',') %>
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body text-center">
+        <i class="bi bi-box display-4 text-info mb-3"></i>
+        <h6 class="text-muted text-uppercase mb-2">Total Units Sold</h6>
+        <h2 class="text-info mb-0"><%= number_with_delimiter(@total_units) %></h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+  <!-- Orders Over Time -->
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-graph-up me-2"></i>Orders Over Time
+        </h5>
+      </div>
+      <div class="card-body">
+        <canvas id="ordersChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue Over Time -->
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-currency-dollar me-2"></i>Revenue Over Time
+        </h5>
+      </div>
+      <div class="card-body">
+        <canvas id="revenueChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Performers Row -->
+<div class="row mb-4">
+  <!-- Top Distributors by Orders -->
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-trophy me-2"></i>Top Distributors by Orders
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>Distributor</th>
+                <th class="text-end">Orders</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @top_distributors_by_orders.each_with_index do |distributor, index| %>
+                <tr>
+                  <td>
+                    <% if index == 0 %>
+                      <span class="badge bg-warning">🥇</span>
+                    <% elsif index == 1 %>
+                      <span class="badge bg-secondary">🥈</span>
+                    <% elsif index == 2 %>
+                      <span class="badge bg-danger">🥉</span>
+                    <% else %>
+                      <span class="text-muted">#<%= index + 1 %></span>
+                    <% end %>
+                  </td>
+                  <td><strong><%= distributor.name %></strong></td>
+                  <td class="text-end">
+                    <span class="badge bg-primary"><%= distributor.order_count %></span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Distributors by Revenue -->
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-cash-stack me-2"></i>Top Distributors by Revenue
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>Distributor</th>
+                <th class="text-end">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @top_distributors_by_revenue.each_with_index do |distributor, index| %>
+                <tr>
+                  <td>
+                    <% if index == 0 %>
+                      <span class="badge bg-warning">🥇</span>
+                    <% elsif index == 1 %>
+                      <span class="badge bg-secondary">🥈</span>
+                    <% elsif index == 2 %>
+                      <span class="badge bg-danger">🥉</span>
+                    <% else %>
+                      <span class="text-muted">#<%= index + 1 %></span>
+                    <% end %>
+                  </td>
+                  <td><strong><%= distributor.name %></strong></td>
+                  <td class="text-end">
+                    <span class="text-success fw-bold">
+                      ZAR <%= number_with_precision(distributor.total_revenue, precision: 2, delimiter: ',') %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Products -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="bi bi-star me-2"></i>Top Products
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>Product</th>
+                <th class="text-center">Pallets Sold</th>
+                <th class="text-center">Units Sold</th>
+                <th class="text-end">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @top_products.each_with_index do |product, index| %>
+                <tr>
+                  <td>
+                    <% if index == 0 %>
+                      <span class="badge bg-warning">🥇</span>
+                    <% elsif index == 1 %>
+                      <span class="badge bg-secondary">🥈</span>
+                    <% elsif index == 2 %>
+                      <span class="badge bg-danger">🥉</span>
+                    <% else %>
+                      <span class="text-muted">#<%= index + 1 %></span>
+                    <% end %>
+                  </td>
+                  <td><strong><%= product.name %></strong></td>
+                  <td class="text-center">
+                    <span class="badge bg-primary"><%= product.total_pallets %></span>
+                  </td>
+                  <td class="text-center">
+                    <%= number_with_delimiter(product.total_pallets * 4800) %>
+                  </td>
+                  <td class="text-end">
+                    <span class="text-success fw-bold">
+                      ZAR <%= number_with_precision(product.revenue, precision: 2, delimiter: ',') %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Orders Over Time Chart
+  const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+  new Chart(ordersCtx, {
+    type: 'line',
+    data: {
+      labels: <%= raw @orders_by_day.keys.map { |d| d.strftime('%d %b') }.to_json %>,
+      datasets: [{
+        label: 'Orders',
+        data: <%= raw @orders_by_day.values.to_json %>,
+        borderColor: '#2c3e50',
+        backgroundColor: 'rgba(44, 62, 80, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // Revenue Over Time Chart
+  const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+  new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+      labels: <%= raw @revenue_by_day.keys.map { |d| d.strftime('%d %b') }.to_json %>,
+      datasets: [{
+        label: 'Revenue (ZAR)',
+        data: <%= raw @revenue_by_day.values.to_json %>,
+        backgroundColor: '#27ae60',
+        borderColor: '#27ae60',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>

@@ -1,6 +1,10 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user, :logged_in?
 include Pagy::Backend # Add this here
+
+  before_action :set_paper_trail_whodunnit
+
+
   private
 
   def current_user
@@ -32,5 +36,10 @@ include Pagy::Backend # Add this here
       flash[:alert] = "You must be a distributor to access this page."
       redirect_to root_path
     end
+  end
+
+  # paper trail
+  def user_for_paper_trail
+    current_user&.email || "System"
   end
 end

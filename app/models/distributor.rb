@@ -1,4 +1,5 @@
 class Distributor < ApplicationRecord
+  has_paper_trail
 has_many :users, dependent: :destroy, inverse_of: :distributor
 has_many :skus
   has_many :orders

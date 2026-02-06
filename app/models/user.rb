@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
+  has_paper_trail
 
 belongs_to :distributor, inverse_of: :users, optional: true
 

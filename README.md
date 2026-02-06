@@ -100,8 +100,12 @@ The `db:seed` file populates the database with the following test accounts:
 * **Soft Deletes:** Products are archived rather than deleted to preserve historical order integrity. Product deletion soft deletes assigned skus as well
 
 * **Filtering:** Admin dashboard includes Ransack search and Pagy pagination
-* **Unit Testing:** Core business logic (pricing, status transitions) is verified with RSpec
+
+* **Unit Testing:** logic and some additional functionality (pricing, email ) is verified with RSpec. automayed through a CI pipeline using git.
+
 * **PDF Downloading** Orders can now be converted into a pdf and downloaded.
+* **Mailer:** Completing an order issues an email to the user with details of the order.
+* **Analytics** Admins can view relevant analytics of the company over a set period of time
 
 ## ✅ Running Tests
 

@@ -10,6 +10,10 @@ Rails.application.routes.draw do
   # Admin routes
   namespace :admin do
     get "dashboard", to: "dashboard#index"
+    get "analytics", to: "analytics#index"
+    resources :audit_logs, only: [ :index, :show ]
+
+
     resources :distributors do
       resources :skus, only: [ :new, :create, :edit, :update, :destroy ]
     end

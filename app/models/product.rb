@@ -1,4 +1,5 @@
 class Product < ApplicationRecord
+  has_paper_trail
   has_many :skus, dependent: :destroy
 
   validates :name, presence: true

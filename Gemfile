@@ -79,6 +79,8 @@ group :development, :test do
   gem "prawn"
 gem "prawn-table"
 gem "letter_opener", group: :development
+gem "groupdate"
+gem "paper_trail"
 end
 
 group :development do

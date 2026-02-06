@@ -1,7 +1,9 @@
 class Order < ApplicationRecord
+  has_paper_trail
   belongs_to :distributor
   belongs_to :user
   has_many :order_items, dependent: :destroy
+
 
   validates :order_number, presence: true, uniqueness: true
   validates :required_delivery_date, presence: true

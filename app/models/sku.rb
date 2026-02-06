@@ -1,4 +1,5 @@
 class Sku < ApplicationRecord
+  has_paper_trail
   belongs_to :product
   belongs_to :distributor
   has_many :order_items
