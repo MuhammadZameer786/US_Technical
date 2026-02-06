@@ -106,6 +106,7 @@ The `db:seed` file populates the database with the following test accounts:
 * **PDF Downloading** Orders can now be converted into a pdf and downloaded.
 * **Mailer:** Completing an order issues an email to the user with details of the order.
 * **Analytics** Admins can view relevant analytics of the company over a set period of time
+* **Audit Log** Added an audit Log to admin to keep track of actions made. also uses filtering
 
 ## ✅ Running Tests
 
