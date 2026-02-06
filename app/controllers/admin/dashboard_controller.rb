@@ -5,15 +5,20 @@ module Admin
 
 
     def index
-          @q = Order.ransack(params[:q])
-
       @distributors_count = Distributor.count
       @products_count = Product.count
       @orders_count = Order.count
-    # @recent_orders = Order.includes(:distributor, :user).order(created_at: :desc).limit(10)
-    @pagy, @recent_orders = pagy(@q.result.includes(:distributor, :user, order_items: :sku).order(created_at: :desc),
-    limit: 10
-  )
+
+      # Ransack search with all associations
+      @q = Order.ransack(params[:q])
+
+      # Pagy pagination with eager loading
+      @pagy, @recent_orders = pagy(
+        @q.result(distinct: true)
+          .includes(:distributor, :user, order_items: { sku: :product })
+          .order(created_at: :desc),
+        items: 10
+      )
     end
   end
 end
