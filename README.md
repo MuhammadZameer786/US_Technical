@@ -90,8 +90,9 @@ The `db:seed` file populates the database with the following test accounts:
 
 | Role | Email | Password |
 |:-----|:------|:---------|
-| **Admin** | `admin@unionswiss.com` | `password` |
-| **Distributor** | `user@distributor.com` | `password` |
+| **Admin** | `admin@unionswiss.com` | `admin123` |
+| **Distributor 1** | `orders@capebeauty.co.za` | `cape123` |
+| **Distributor 2** | `purchasing@wellnessza.com ` | `wellness123` |
 
 ## 🚀 Additional Features Implemented
 
